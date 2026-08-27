@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-shell">
+        <div class="auth-intro">
+            <div class="auth-mark"><i class="fa-solid fa-graduation-cap"></i></div>
+            <small>PORTAIL ACADÉMIQUE</small>
+            <h1>EduManage</h1>
+            <p class="mb-0">Université de Yaoundé I</p>
+        </div>
+        <div class="auth-form">
+            <h2>Connexion</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="role">Rôle</label>
+                    <div class="auth-input-wrap"><i class="auth-icon fa-solid fa-user-tag"></i><select id="role" name="role" class="form-select" required><option value="">Choisir un rôle</option><option value="etudiant">Étudiant</option><option value="enseignant">Enseignant</option></select></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="matricule">Matricule</label>
+                    <div class="auth-input-wrap"><i class="auth-icon fa-solid fa-id-badge"></i><input id="matricule" type="text" name="matricule" class="form-control" required placeholder="ex : 23V2142"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="password">Mot de passe</label>
+                    <div class="auth-input-wrap"><i class="auth-icon fa-solid fa-lock"></i><input id="password" type="password" name="password" class="form-control" required placeholder="••••••••"></div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Se connecter <i class="fa-solid fa-arrow-right ms-2"></i></button>
+            </form>
+        </div>
+        <div class="auth-footer">Nouveau membre ? <a href="{% url 'check_identity' %}" class="auth-link">Créer mon compte</a></div>
+    </div>
+</div>
+{% endblock %}

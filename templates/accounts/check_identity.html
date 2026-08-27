@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Vérification de l'identité{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-shell">
+        <div class="auth-intro"><div class="auth-mark"><i class="fa-solid fa-user-plus"></i></div><small>PREMIÈRE CONNEXION</small><h1>EduManage</h1><p class="mb-0">Activez votre profil étudiant ou enseignant.</p></div>
+        <div class="auth-form">
+            <h2>Créer mon compte</h2>
+            <p class="text-center mb-4">Entrez le matricule fourni par l'université.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label" for="matricule">Matricule</label>
+                    <div class="auth-input-wrap"><i class="auth-icon fa-solid fa-id-badge"></i><input id="matricule" type="text" name="matricule" class="form-control" required placeholder="ex : 23V2142"></div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Continuer <i class="fa-solid fa-arrow-right ms-2"></i></button>
+            </form>
+        </div>
+        <div class="auth-footer">Déjà inscrit ? <a href="{% url 'login' %}" class="auth-link">Se connecter</a></div>
+    </div>
+</div>
+{% endblock %}
