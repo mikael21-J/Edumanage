@@ -53,6 +53,13 @@
       .portal-link.active {
         color: var(--blue) !important;
       }
+      .portal-menu {
+        margin-left: 1.5rem;
+      }
+      .portal-menu .nav-link {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
       .portal-user-card {
         padding: 0;
         color: var(--ink);
@@ -243,6 +250,9 @@
         font-weight: 600;
       }
       @media (max-width: 480px) {
+        .portal-menu {
+          margin-left: 0;
+        }
         .auth-page {
           padding: 1rem 0.5rem;
         }
@@ -270,8 +280,27 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav portal-menu">
+            <li class="nav-item">
+              <a class="nav-link portal-link{% if request.resolver_match.url_name == 'home' %} active{% endif %}" href="{% url 'home' %}">Accueil</a>
+            </li>
+            <li class="nav-item">
+              {% if connected_person and request.session.auth_role == 'etudiant' %}
+              <a class="nav-link portal-link" href="{% url 'dashboard_etudiant' %}">Dashboard</a>
+              {% elif connected_person and request.session.auth_role == 'enseignant' %}
+              <a class="nav-link portal-link" href="{% url 'dashboard_enseignant' %}">Dashboard</a>
+              {% elif connected_person and request.session.auth_role == 'admin_cellule' %}
+              <a class="nav-link portal-link" href="{% url 'dashboard_admin_cellule' %}">Dashboard</a>
+              {% else %}
+              <a class="nav-link portal-link" href="{% url 'login' %}">Dashboard</a>
+              {% endif %}
+            </li>
+            <li class="nav-item">
+              <a class="nav-link portal-link" href="{% url 'home' %}#presentation">Infos</a>
+            </li>
+          </ul>
           <ul class="navbar-nav ms-auto">
-            {% if request.session.auth_matricule and request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'check_identity' and request.resolver_match.url_name != 'create_password' %}
+            {% if connected_person and request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'check_identity' and request.resolver_match.url_name != 'create_password' %}
             {% if request.session.auth_role == 'enseignant' %}
             <li class="nav-item">
               <a
@@ -291,14 +320,11 @@
             </li>
             {% endif %}
             <li class="nav-item">
-              <span class="portal-user-card d-block me-2"
-                ><span class="portal-user-name"
-                  >{{ connected_person.prenom }} {{ connected_person.nom
-                  }}</span
-                ><br /><span class="portal-user-meta"
-                  >{{ connected_person.matricule }}{% if request.session.auth_role == 'etudiant' %} · {{ connected_person.filiere.code_filiere }} · {{ connected_person.niveau }}{% else %} · {{ connected_person.fonction }}{% endif %}</span
-                ></span
-              >
+              <span class="portal-user-card d-block me-2">
+                <span class="portal-user-name">{{ connected_person.prenom }} {{ connected_person.nom }}</span>
+                <br />
+                <span class="portal-user-meta">{{ connected_person.matricule }}{% if request.session.auth_role == 'etudiant' %} · {{ connected_person.filiere.code_filiere }} · {{ connected_person.niveau }}{% else %} · {{ connected_person.fonction }}{% endif %}</span>
+              </span>
             </li>
             <li class="nav-item">
               <a
