@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql='DELETE FROM django_admin_log',
-            reverse_sql=migrations.RunSQL.noop,
-        ),
         migrations.RemoveField(
             model_name='enseignant',
             name='user',

@@ -1,0 +1,331 @@
+{% extends 'base.html' %} {% block title %}Dashboard AdminCellule{% endblock %}
+{% block content %}
+<style>
+  .admin-page {
+    --ink: #131b2e;
+    --muted: #5f6678;
+    --blue: #004ac6;
+    --line: #c3c6d7;
+    color: var(--ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+  .admin-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.94);
+    border-right: 1px solid var(--line);
+  }
+  .admin-brand {
+    color: var(--blue);
+    font:
+      700 1.5rem/2rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .admin-label,
+  .admin-meta {
+    color: var(--muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+  }
+  .admin-label {
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .admin-nav {
+    color: var(--muted);
+    border-radius: 4px;
+    font:
+      600 0.85rem/1.2rem Inter,
+      sans-serif;
+    text-decoration: none;
+  }
+  .admin-nav:hover,
+  .admin-nav.active {
+    color: var(--blue);
+    background: #d0e1fb;
+  }
+  .admin-topbar {
+    min-height: 64px;
+    background: rgba(250, 248, 255, 0.94);
+    border-bottom: 1px solid var(--line);
+  }
+  .admin-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font:
+      700 0.8rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .admin-main {
+    max-width: 1280px;
+  }
+  .admin-title {
+    font:
+      700 1.9rem/1.2 "Hanken Grotesk",
+      sans-serif;
+  }
+  .admin-subtitle {
+    color: var(--muted);
+    font:
+      400 0.85rem/1.4rem Inter,
+      sans-serif;
+  }
+  .admin-stat,
+  .admin-table {
+    background: rgba(250, 248, 255, 0.9);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .admin-stat {
+    padding: 1rem 1.25rem;
+  }
+  .admin-stat-value {
+    font:
+      700 1.6rem/1.2rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .admin-stat-label {
+    color: var(--muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+    text-transform: uppercase;
+  }
+  .pending-green .admin-stat-value {
+    color: #087f5b;
+  }
+  .pending-yellow .admin-stat-value {
+    color: #b7791f;
+  }
+  .pending-red .admin-stat-value {
+    color: #c53030;
+  }
+  .admin-table {
+    overflow: hidden;
+  }
+  .admin-table-header {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+  .admin-table th {
+    padding: 0.75rem 1rem;
+    color: var(--muted);
+    background: #fff;
+    font:
+      600 0.68rem/1rem Inter,
+      sans-serif;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .admin-table td {
+    padding: 0.75rem 1rem;
+    border-bottom-color: var(--line);
+    font:
+      400 0.82rem/1.3rem Inter,
+      sans-serif;
+    vertical-align: middle;
+  }
+  @media (max-width: 767px) {
+    .admin-page {
+      margin: -1.5rem -0.75rem;
+    }
+    .admin-sidebar {
+      display: none;
+    }
+    .admin-main {
+      padding: 1.25rem 1rem !important;
+    }
+    .admin-topbar {
+      padding: 0.75rem 1rem !important;
+    }
+    .admin-table th,
+    .admin-table td {
+      padding: 0.65rem;
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<div class="admin-page d-flex">
+  <aside class="admin-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="admin-avatar">
+        <i class="fa-solid fa-building-columns"></i>
+      </div>
+      <div>
+        <div class="admin-brand">EduManage</div>
+        <div class="admin-label">Cellule informatique</div>
+      </div>
+    </div>
+    <nav class="d-grid gap-2">
+      <a
+        class="admin-nav active d-flex gap-2 p-3"
+        href="{% url 'dashboard_admin_cellule' %}"
+        ><i class="fa-solid fa-table-columns"></i>Dashboard</a
+      >
+      <a
+        class="admin-nav d-flex gap-2 p-3"
+        href="{% url 'admin_resource' 'etudiants' %}"
+        ><i class="fa-solid fa-users"></i>Étudiants</a
+      >
+      <a
+        class="admin-nav d-flex gap-2 p-3"
+        href="{% url 'admin_resource' 'enseignants' %}"
+        ><i class="fa-solid fa-chalkboard-user"></i>Enseignants</a
+      >
+      <a
+        class="admin-nav d-flex gap-2 p-3"
+        href="{% url 'admin_resource' 'ue' %}"
+        ><i class="fa-solid fa-book-open"></i>UE</a
+      >
+    </nav>
+  </aside>
+
+  <div class="flex-grow-1 min-w-0">
+    <header
+      class="admin-topbar d-flex justify-content-between align-items-center px-3 px-lg-5"
+    >
+      <div class="admin-label">Espace AdminCellule</div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="admin-meta d-none d-sm-inline"
+          >{{ admin_cellule.prenom }} {{ admin_cellule.nom }}</span
+        >
+        <div class="admin-avatar">
+          {{ admin_cellule.prenom|first }}{{ admin_cellule.nom|first }}
+        </div>
+      </div>
+    </header>
+    <main class="admin-main w-100 px-3 px-lg-5 py-4 py-lg-5">
+      <header class="mb-4">
+        <h1 class="admin-title mb-2">Demandes de publication</h1>
+        <p class="admin-subtitle mb-0">
+          Contrôlez les PV transmis par les enseignants.
+        </p>
+      </header>
+      <section class="row g-3 mb-5">
+        <div class="col-12 col-md-4">
+          <div
+            class="admin-stat h-100 {% if stats.pending == 0 %}pending-green{% elif stats.pending <= 5 %}pending-yellow{% else %}pending-red{% endif %}"
+          >
+            <div class="admin-stat-value">{{ stats.pending }}</div>
+            <div class="admin-stat-label mt-2">PV en attente</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="admin-stat h-100">
+            <div class="admin-stat-value">{{ stats.students }}</div>
+            <div class="admin-stat-label mt-2">Étudiants</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="admin-stat h-100">
+            <div class="admin-stat-value">{{ stats.ues }}</div>
+            <div class="admin-stat-label mt-2">UE disponibles</div>
+          </div>
+        </div>
+      </section>
+      <form method="get" class="admin-table mb-4">
+        <div class="admin-table-header">
+          <div class="row g-2">
+            <div class="col-md-3">
+              <select name="faculte" class="form-select">
+                <option value="">Toutes les facultés</option>
+                {% for item in facultes %}
+                <option value="{{ item.id }}">{{ item.nom_fac }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select name="departement" class="form-select">
+                <option value="">Tous les départements</option>
+                {% for item in departements %}
+                <option value="{{ item.id }}">{{ item.nom_dept }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select name="filiere" class="form-select">
+                <option value="">Toutes les filières</option>
+                {% for item in filieres %}
+                <option value="{{ item.id }}">{{ item.nom_filiere }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select name="niveau" class="form-select">
+                <option value="">Tous les niveaux</option>
+                {% for value,label in niveaux %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-1">
+              <button class="btn btn-primary w-100" type="submit">
+                <i class="fa-solid fa-filter"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+      <section class="admin-table">
+        <div class="admin-table-header">
+          <h2 class="h5 mb-1">PV à examiner</h2>
+          <p class="admin-meta mb-0">
+            Les demandes rejetées ou publiées disparaissent de cette liste.
+          </p>
+        </div>
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Envoyé le</th>
+                <th>UE</th>
+                <th>Filière / niveau</th>
+                <th>Enseignant</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pv in pvs %}
+              <tr>
+                <td>{{ pv.date_envoi|date:'d/m/Y H:i' }}</td>
+                <td>
+                  <strong>{{ pv.ue.code_ue }}</strong><br /><span
+                    class="admin-meta"
+                    >{{ pv.ue.intitule }}</span
+                  >
+                </td>
+                <td>{{ pv.ue.filiere.code_filiere }} · {{ pv.ue.niveau }}</td>
+                <td>{{ pv.enseignant.prenom }} {{ pv.enseignant.nom }}</td>
+                <td>
+                  <a
+                    class="btn btn-sm btn-primary"
+                    href="{% url 'admin_pv_detail' pv.id %}"
+                    >Examiner</a
+                  >
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-5 admin-meta">
+                  Aucune requête en attente.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

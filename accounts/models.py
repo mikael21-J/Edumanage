@@ -4,6 +4,7 @@ from django.db import models
 class RoleUtilisateur(models.TextChoices):
     ETUDIANT = 'ETUDIANT', 'Étudiant'
     ENSEIGNANT = 'ENSEIGNANT', 'Enseignant'
+    ADMIN_CELLULE = 'ADMIN_CELLULE', 'Administrateur cellule'
 
 
 class Region(models.TextChoices):
@@ -58,5 +59,18 @@ class Enseignant(models.Model):
 
     def __str__(self):
         return f"{self.matricule} - {self.nom} {self.prenom}"
+
+
+class AdminCellule(models.Model):
+    username = models.CharField(max_length=50, unique=True)
+    mot_de_passe = models.CharField(max_length=128)
+    nom = models.CharField(max_length=100)
+    prenom = models.CharField(max_length=100)
+    fonction = models.CharField(max_length=100, default='Administrateur cellule')
+    actif = models.BooleanField(default=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.username} - {self.nom} {self.prenom}"
 
 

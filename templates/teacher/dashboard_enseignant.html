@@ -1,0 +1,373 @@
+{% extends 'base.html' %} {% block title %}Tableau de bord enseignant -
+EduManage{% endblock %} {% block content %}
+<style>
+  .teacher-dashboard {
+    --teacher-ink: #131b2e;
+    --teacher-muted: #5f6678;
+    --teacher-blue: #004ac6;
+    --teacher-line: #c3c6d7;
+    color: var(--teacher-ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+  .teacher-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.92);
+    border-right: 1px solid var(--teacher-line);
+  }
+  .teacher-brand {
+    color: var(--teacher-blue);
+    font:
+      700 1.5rem/2rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .teacher-label {
+    color: var(--teacher-muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .teacher-nav-link {
+    color: var(--teacher-muted);
+    border-radius: 4px;
+    font:
+      600 0.85rem/1.2rem Inter,
+      sans-serif;
+    text-decoration: none;
+  }
+  .teacher-nav-link:hover,
+  .teacher-nav-link.active {
+    color: var(--teacher-blue);
+    background: #d0e1fb;
+  }
+  .teacher-cta {
+    color: #fff;
+    background: var(--teacher-blue);
+    border-radius: 4px;
+    font:
+      600 0.75rem/1rem Inter,
+      sans-serif;
+    text-decoration: none;
+  }
+  .teacher-topbar {
+    min-height: 64px;
+    background: rgba(250, 248, 255, 0.94);
+    border-bottom: 1px solid var(--teacher-line);
+  }
+  .teacher-user {
+    color: var(--teacher-muted);
+    font:
+      500 0.8rem/1.2rem Inter,
+      sans-serif;
+  }
+  .teacher-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--teacher-blue);
+    color: #fff;
+    font:
+      700 0.8rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .teacher-main {
+    max-width: 1280px;
+  }
+  .teacher-title {
+    font:
+      700 1.9rem/1.2 "Hanken Grotesk",
+      sans-serif;
+  }
+  .teacher-subtitle,
+  .class-meta,
+  .class-text {
+    color: var(--teacher-muted);
+    font:
+      400 0.85rem/1.4rem Inter,
+      sans-serif;
+  }
+  .teacher-stat,
+  .class-card {
+    background: rgba(250, 248, 255, 0.88);
+    border: 1px solid var(--teacher-line);
+    border-radius: 8px;
+  }
+  .teacher-stat {
+    padding: 1rem 1.25rem;
+  }
+  .teacher-stat-value {
+    color: var(--teacher-blue);
+    font:
+      700 1.6rem/1.2rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .teacher-stat-label {
+    color: var(--teacher-muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .class-card {
+    overflow: hidden;
+    color: var(--teacher-ink);
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      transform 0.2s;
+  }
+  .class-card:hover {
+    border-color: var(--teacher-blue);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    color: var(--teacher-ink);
+    transform: translateY(-2px);
+  }
+  .class-banner {
+    height: 104px;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #2563eb, #004ac6);
+  }
+  .class-banner.alt {
+    background: linear-gradient(135deg, #55769a, #35516e);
+  }
+  .class-banner.muted {
+    background: linear-gradient(135deg, #858d9c, #606b7c);
+  }
+  .class-status {
+    display: inline-block;
+    margin-top: 3rem;
+    padding: 0.3rem 0.55rem;
+    color: var(--teacher-blue);
+    background: #fff;
+    border-radius: 3px;
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+  }
+  .class-progress {
+    height: 4px;
+    background: #d2d9f4;
+  }
+  .class-progress-value {
+    height: 100%;
+    background: var(--teacher-blue);
+  }
+  .class-body {
+    padding: 1.25rem;
+  }
+  .class-title {
+    font:
+      600 1.1rem/1.3 "Hanken Grotesk",
+      sans-serif;
+  }
+  .class-code {
+    padding: 0.3rem 0.45rem;
+    color: var(--teacher-blue);
+    background: #d0e1fb;
+    border-radius: 3px;
+    font:
+      700 0.82rem/1rem "JetBrains Mono",
+      monospace;
+  }
+  .class-action {
+    color: var(--teacher-blue);
+    font:
+      600 0.75rem/1rem Inter,
+      sans-serif;
+  }
+  .teacher-search {
+    max-width: 300px;
+    min-height: 42px;
+    padding-left: 2.5rem;
+    border: 1px solid var(--teacher-line);
+    border-radius: 4px;
+    background: #faf8ff;
+  }
+  @media (max-width: 767px) {
+    .teacher-dashboard {
+      margin: -1.5rem -0.75rem;
+    }
+    .teacher-sidebar {
+      display: none;
+    }
+    .teacher-main {
+      padding: 1.25rem 1rem !important;
+    }
+    .teacher-topbar {
+      padding: 0.75rem 1rem !important;
+    }
+  }
+</style>
+
+<div class="teacher-dashboard d-flex">
+  <aside class="teacher-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="teacher-avatar">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <div class="teacher-brand">EduManage</div>
+        <div class="teacher-label">Academic Portal</div>
+      </div>
+    </div>
+    <a
+      class="teacher-cta d-flex justify-content-center gap-2 py-3 px-3 mb-4"
+      href="{% url 'select_teacher_ues' %}"
+      ><i class="fa-solid fa-pen-to-square"></i>Modifier mes UE</a
+    >
+    <nav class="d-grid gap-2">
+      <a
+        class="teacher-nav-link active d-flex align-items-center gap-2 p-3"
+        href="{% url 'dashboard_enseignant' %}"
+        ><i class="fa-solid fa-table-columns"></i>Tableau de bord</a
+      >
+      <a
+        class="teacher-nav-link d-flex align-items-center gap-2 p-3"
+        href="{% url 'teacher_requetes' %}"
+        ><i class="fa-solid fa-inbox"></i>Boîte de réception</a
+      >
+    </nav>
+    <div class="mt-auto pt-4 border-top">
+      <a
+        class="teacher-nav-link d-flex align-items-center gap-2 p-3"
+        href="{% url 'logout' %}"
+        ><i class="fa-solid fa-right-from-bracket"></i>Déconnexion</a
+      >
+    </div>
+  </aside>
+
+  <div class="flex-grow-1 min-w-0">
+    <header
+      class="teacher-topbar d-flex justify-content-between align-items-center px-3 px-lg-5"
+    >
+      <div class="teacher-label">Espace enseignant</div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="teacher-user d-none d-sm-inline"
+          >{{ enseignant.prenom }} {{ enseignant.nom }}</span
+        >
+        <div class="teacher-avatar">
+          {{ enseignant.prenom|first }}{{ enseignant.nom|first }}
+        </div>
+      </div>
+    </header>
+    <main class="teacher-main w-100 px-3 px-lg-5 py-4 py-lg-5">
+      <header class="mb-4">
+        <h1 class="teacher-title mb-2">Mes unités d’enseignement</h1>
+        <p class="teacher-subtitle mb-0">
+          Gérez vos unités et les évaluations de vos étudiants.
+        </p>
+      </header>
+      <section class="row g-3 mb-5" aria-label="Résumé enseignant">
+        <div class="col-6 col-lg-4">
+          <div class="teacher-stat h-100">
+            <div class="teacher-stat-value">{{ habilitations|length }}</div>
+            <div class="teacher-stat-label mt-2">UE habilitées</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-4">
+          <div class="teacher-stat h-100">
+            <div class="teacher-stat-value">{{ enseignant.matricule }}</div>
+            <div class="teacher-stat-label mt-2">Matricule</div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-4">
+          <div class="teacher-stat h-100">
+            <div class="teacher-stat-value">Actif</div>
+            <div class="teacher-stat-label mt-2">Statut du compte</div>
+          </div>
+        </div>
+      </section>
+      <section id="classes">
+        <div
+          class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"
+        >
+          <div>
+            <h2 class="h4 mb-1">Vos unités d’enseignement</h2>
+            <p class="teacher-subtitle mb-0">Accédez à la saisie des notes.</p>
+          </div>
+          <input
+            id="class-search"
+            class="form-control teacher-search"
+            type="search"
+            placeholder="Rechercher une UE..."
+          />
+        </div>
+        <div class="row g-4" id="class-list">
+          {% for item in habilitations %}
+          <div class="col-12 col-md-6 col-xl-4 class-item">
+            <a
+              class="class-card h-100 d-block"
+              href="{% url 'teacher_evaluations' item.ue.code_ue %}"
+              data-search="{{ item.ue.code_ue }} {{ item.ue.intitule }} {{ item.ue.filiere.code_filiere }} {{ item.ue.niveau }}"
+            >
+              <div class="class-banner {% cycle '' 'alt' 'muted' %}">
+                <span class="class-status"
+                  ><i class="fa-solid fa-circle-check me-1"></i>Active</span
+                >
+              </div>
+              <div class="class-progress">
+                <div
+                  class="class-progress-value"
+                  style="width: {{ item.progress }}%"
+                ></div>
+              </div>
+              <div class="class-body d-flex flex-column h-100">
+                <div
+                  class="d-flex justify-content-between align-items-start gap-2 mb-2"
+                >
+                  <h3 class="class-title mb-0">{{ item.ue.intitule }}</h3>
+                  <span class="class-code">{{ item.ue.code_ue }}</span>
+                </div>
+                <p class="class-text flex-grow-1 mb-3">
+                  {{ item.ue.filiere.nom_filiere }} · {{ item.ue.niveau }} · {{
+                  item.ue.semestre }}
+                </p>
+                <div
+                  class="d-flex justify-content-between align-items-center pt-3 border-top"
+                >
+                  <span class="class-meta"
+                    ><i class="fa-solid fa-users me-1"></i>{{ item.student_count
+                    }} étudiant{{ item.student_count|pluralize }}</span
+                  ><span class="class-action"
+                    >Gérer <i class="fa-solid fa-arrow-right ms-1"></i
+                  ></span>
+                </div>
+                <div class="class-meta mt-2">
+                  {{ item.published_count }}/{{ item.student_count }} notes
+                  publiées
+                </div>
+              </div>
+            </a>
+          </div>
+          {% empty %}
+          <div class="col-12">
+            <p class="teacher-subtitle">Aucune UE habilitée.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+<script>
+  document
+    .getElementById("class-search")
+    .addEventListener("input", function () {
+      const query = this.value.toLowerCase().trim();
+      document.querySelectorAll(".class-item").forEach(function (item) {
+        item.classList.toggle(
+          "d-none",
+          !item.dataset.search.toLowerCase().includes(query),
+        );
+      });
+    });
+</script>
+{% endblock %}

@@ -1,119 +1,368 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Portail Académique UY1{% endblock %}</title>
     <!-- Bootstrap 5 CSS (via CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- FontAwesome pour les icônes (optionnel) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        :root { --ink: #131b2e; --muted: #5f6678; --blue: #004ac6; --surface: #faf8ff; --line: #c3c6d7; }
-        body { color: var(--ink); }
-        .portal-navbar { background: rgba(250,248,255,.97); border-bottom: 1px solid var(--line); }
-        .portal-brand { color: var(--blue); font: 700 1.35rem/1.5rem 'Hanken Grotesk', sans-serif; }
-        .portal-brand:hover { color: #003ea8; }
-        .portal-link { color: var(--muted) !important; font: 600 .8rem/1.2rem Inter, sans-serif; }
-        .portal-link:hover, .portal-link.active { color: var(--blue) !important; }
-        .portal-user-card { padding: 0; color: var(--ink); font: 400 .72rem/1.2rem Inter, sans-serif; }
-        .portal-user-name { font-weight: 600; }
-        .portal-user-meta { color: var(--muted); }
-        .portal-logout { color: #fff !important; background: var(--blue); border: 0; border-radius: 4px; font: 600 .72rem/1rem Inter, sans-serif; }
-        .portal-logout:hover { background: #003ea8; }
-        .auth-page { min-height: 76vh; display: grid; place-items: center; padding: 2rem 1rem; position: relative; isolation: isolate; }
-        .auth-page::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(135deg, rgba(242,243,255,.94), rgba(250,248,255,.78)), url('https://images.unsplash.com/photo-1564981797816-1043664bf78d?auto=format&fit=crop&w=1800&q=80') center/cover; }
-        .auth-page::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(115deg, rgba(0,74,198,.08), transparent 48%, rgba(218,226,253,.38)); pointer-events: none; }
-        .auth-shell { width: min(460px, 100%); overflow: hidden; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 18px 48px rgba(15,23,42,.12); background: #fff; }
-        .auth-intro { padding: 2rem 2rem 1.5rem; text-align: center; border-bottom: 1px solid #eaedff; }
-        .auth-mark { width: 56px; height: 56px; margin: 0 auto 1rem; display: grid; place-items: center; border-radius: 50%; background: #2563eb; color: #fff; font-size: 1.65rem; }
-        .auth-intro small { color: var(--blue); font: 600 .7rem/1rem Inter, sans-serif; letter-spacing: .12em; }
-        .auth-intro h1 { margin: .75rem 0 .25rem; color: var(--blue); font: 700 2rem/2.4rem 'Hanken Grotesk', sans-serif; }
-        .auth-intro p, .auth-form p, .auth-footer { color: var(--muted); font: 400 .875rem/1.35rem Inter, sans-serif; }
-        .auth-form { padding: 1.75rem 2rem 2rem; }
-        .auth-form h2 { margin-bottom: 1.5rem; text-align: center; font: 600 1.5rem/2rem 'Hanken Grotesk', sans-serif; }
-        .auth-form .form-label { color: #434655; font: 600 .7rem/1rem Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
-        .auth-input-wrap { position: relative; }
-        .auth-input-wrap .auth-icon { position: absolute; top: 50%; left: .75rem; transform: translateY(-50%); color: #737686; pointer-events: none; }
-        .auth-form .form-control, .auth-form .form-select { min-height: 46px; padding: .7rem .8rem .7rem 2.6rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; font: 400 .85rem/1.2rem Inter, sans-serif; }
-        .auth-form .form-control[name="matricule"] { font-family: 'JetBrains Mono', monospace; }
-        .auth-form .form-control:focus, .auth-form .form-select:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(0,74,198,.16); }
-        .auth-form .btn { min-height: 46px; border: 0; border-radius: 4px; background: var(--blue); font: 600 .75rem/1rem Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
-        .auth-form .btn:hover { background: #003ea8; }
-        .auth-link { color: var(--blue); font: 500 .875rem/1.25rem Inter, sans-serif; text-decoration: none; }
-        .auth-link:hover { text-decoration: underline; }
-        .auth-footer { padding: 1rem 2rem; text-align: center; background: #f2f3ff; border-top: 1px solid var(--line); }
-        .auth-footer a { margin-left: .25rem; font-weight: 600; }
-        @media (max-width: 480px) { .auth-page { padding: 1rem .5rem; } .auth-intro, .auth-form { padding-left: 1.25rem; padding-right: 1.25rem; } }
+      :root {
+        --ink: #131b2e;
+        --muted: #5f6678;
+        --blue: #004ac6;
+        --surface: #faf8ff;
+        --line: #c3c6d7;
+      }
+      body {
+        color: var(--ink);
+      }
+      .portal-navbar {
+        background: rgba(250, 248, 255, 0.97);
+        border-bottom: 1px solid var(--line);
+      }
+      .portal-brand {
+        color: var(--blue);
+        font:
+          700 1.35rem/1.5rem "Hanken Grotesk",
+          sans-serif;
+      }
+      .portal-brand:hover {
+        color: #003ea8;
+      }
+      .portal-link {
+        color: var(--muted) !important;
+        font:
+          600 0.8rem/1.2rem Inter,
+          sans-serif;
+      }
+      .portal-link:hover,
+      .portal-link.active {
+        color: var(--blue) !important;
+      }
+      .portal-user-card {
+        padding: 0;
+        color: var(--ink);
+        font:
+          400 0.72rem/1.2rem Inter,
+          sans-serif;
+      }
+      .portal-user-name {
+        font-weight: 600;
+      }
+      .portal-user-meta {
+        color: var(--muted);
+      }
+      .portal-logout {
+        color: #fff !important;
+        background: var(--blue);
+        border: 0;
+        border-radius: 4px;
+        font:
+          600 0.72rem/1rem Inter,
+          sans-serif;
+      }
+      .portal-logout:hover {
+        background: #003ea8;
+      }
+      .auth-page {
+        min-height: 76vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem 1rem;
+        position: relative;
+        isolation: isolate;
+      }
+      .auth-page::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background:
+          linear-gradient(
+            135deg,
+            rgba(242, 243, 255, 0.94),
+            rgba(250, 248, 255, 0.78)
+          ),
+          url("https://images.unsplash.com/photo-1564981797816-1043664bf78d?auto=format&fit=crop&w=1800&q=80")
+            center/cover;
+      }
+      .auth-page::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(
+          115deg,
+          rgba(0, 74, 198, 0.08),
+          transparent 48%,
+          rgba(218, 226, 253, 0.38)
+        );
+        pointer-events: none;
+      }
+      .auth-shell {
+        width: min(460px, 100%);
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.12);
+        background: #fff;
+      }
+      .auth-intro {
+        padding: 2rem 2rem 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid #eaedff;
+      }
+      .auth-mark {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 1rem;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #2563eb;
+        color: #fff;
+        font-size: 1.65rem;
+      }
+      .auth-intro small {
+        color: var(--blue);
+        font:
+          600 0.7rem/1rem Inter,
+          sans-serif;
+        letter-spacing: 0.12em;
+      }
+      .auth-intro h1 {
+        margin: 0.75rem 0 0.25rem;
+        color: var(--blue);
+        font:
+          700 2rem/2.4rem "Hanken Grotesk",
+          sans-serif;
+      }
+      .auth-intro p,
+      .auth-form p,
+      .auth-footer {
+        color: var(--muted);
+        font:
+          400 0.875rem/1.35rem Inter,
+          sans-serif;
+      }
+      .auth-form {
+        padding: 1.75rem 2rem 2rem;
+      }
+      .auth-form h2 {
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font:
+          600 1.5rem/2rem "Hanken Grotesk",
+          sans-serif;
+      }
+      .auth-form .form-label {
+        color: #434655;
+        font:
+          600 0.7rem/1rem Inter,
+          sans-serif;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .auth-input-wrap {
+        position: relative;
+      }
+      .auth-input-wrap .auth-icon {
+        position: absolute;
+        top: 50%;
+        left: 0.75rem;
+        transform: translateY(-50%);
+        color: #737686;
+        pointer-events: none;
+      }
+      .auth-form .form-control,
+      .auth-form .form-select {
+        min-height: 46px;
+        padding: 0.7rem 0.8rem 0.7rem 2.6rem;
+        color: var(--ink);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        font:
+          400 0.85rem/1.2rem Inter,
+          sans-serif;
+      }
+      .auth-form .form-control[name="matricule"] {
+        font-family: "JetBrains Mono", monospace;
+      }
+      .auth-form .form-control:focus,
+      .auth-form .form-select:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 2px rgba(0, 74, 198, 0.16);
+      }
+      .auth-form .btn {
+        min-height: 46px;
+        border: 0;
+        border-radius: 4px;
+        background: var(--blue);
+        font:
+          600 0.75rem/1rem Inter,
+          sans-serif;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .auth-form .btn:hover {
+        background: #003ea8;
+      }
+      .auth-link {
+        color: var(--blue);
+        font:
+          500 0.875rem/1.25rem Inter,
+          sans-serif;
+        text-decoration: none;
+      }
+      .auth-link:hover {
+        text-decoration: underline;
+      }
+      .auth-footer {
+        padding: 1rem 2rem;
+        text-align: center;
+        background: #f2f3ff;
+        border-top: 1px solid var(--line);
+      }
+      .auth-footer a {
+        margin-left: 0.25rem;
+        font-weight: 600;
+      }
+      @media (max-width: 480px) {
+        .auth-page {
+          padding: 1rem 0.5rem;
+        }
+        .auth-intro,
+        .auth-form {
+          padding-left: 1.25rem;
+          padding-right: 1.25rem;
+        }
+      }
     </style>
-</head>
-<body class="bg-light d-flex flex-column min-vh-100">
-
+  </head>
+  <body class="bg-light d-flex flex-column min-vh-100">
     <!-- Barre de Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light portal-navbar shadow-sm">
-        <div class="container">
-            <a class="navbar-brand portal-brand" href="#">
-                <i class="fa-solid fa-graduation-cap me-2"></i>EduManage
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    {% if request.session.auth_matricule and request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'check_identity' and request.resolver_match.url_name != 'create_password' %}
-                        {% if request.session.auth_role == 'enseignant' %}
-                            <li class="nav-item">
-                                <a class="nav-link portal-link" href="{% url 'dashboard_enseignant' %}">Espace enseignant</a>
-                            </li>
-                        {% endif %}
-                        <li class="nav-item">
-                            <span class="portal-user-card d-block me-2"><span class="portal-user-name">{{ connected_person.prenom }} {{ connected_person.nom }}</span><br><span class="portal-user-meta">{{ connected_person.matricule }}{% if request.session.auth_role == 'etudiant' %} · {{ connected_person.filiere.code_filiere }} · {{ connected_person.niveau }}{% else %} · {{ connected_person.fonction }}{% endif %}</span></span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn portal-logout btn-sm mt-1 px-3" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket me-1"></i>Déconnexion</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link portal-link active" href="{% url 'login' %}">Connexion</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-sm ms-2 mt-1 fw-bold portal-link" href="{% url 'check_identity' %}">Créer son compte</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
+      <div class="container">
+        <a class="navbar-brand portal-brand" href="{% url 'home' %}">
+          <i class="fa-solid fa-graduation-cap me-2"></i>EduManage
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            {% if request.session.auth_matricule and request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'check_identity' and request.resolver_match.url_name != 'create_password' %}
+            {% if request.session.auth_role == 'enseignant' %}
+            <li class="nav-item">
+              <a
+                class="nav-link portal-link"
+                href="{% url 'dashboard_enseignant' %}"
+                >Espace enseignant</a
+              >
+            </li>
+            {% endif %}
+            {% if request.session.auth_role == 'admin_cellule' %}
+            <li class="nav-item">
+              <a
+                class="nav-link portal-link"
+                href="{% url 'dashboard_admin_cellule' %}"
+                >Cellule informatique</a
+              >
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <span class="portal-user-card d-block me-2"
+                ><span class="portal-user-name"
+                  >{{ connected_person.prenom }} {{ connected_person.nom
+                  }}</span
+                ><br /><span class="portal-user-meta"
+                  >{{ connected_person.matricule }}{% if request.session.auth_role == 'etudiant' %} · {{ connected_person.filiere.code_filiere }} · {{ connected_person.niveau }}{% else %} · {{ connected_person.fonction }}{% endif %}</span
+                ></span
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="btn portal-logout btn-sm mt-1 px-3"
+                href="{% url 'logout' %}"
+                ><i class="fa-solid fa-right-from-bracket me-1"></i
+                >Déconnexion</a
+              >
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link portal-link active" href="{% url 'login' %}"
+                >Connexion</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="btn btn-sm ms-2 mt-1 fw-bold portal-link"
+                href="{% url 'check_identity' %}"
+                >Créer son compte</a
+              >
+            </li>
+            {% endif %}
+          </ul>
         </div>
+      </div>
     </nav>
 
     <!-- Conteneur pour les messages d'alerte (succès, erreurs, etc.) -->
     <div class="container mt-3">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
+      {% if messages %} {% for message in messages %}
+      <div
+        class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %} {% endif %}
     </div>
 
     <!-- Zone principale où s'insèrent le contenu des autres templates -->
     <main class="container my-4 flex-grow-1">
-        {% block content %}
-        <!-- Le contenu spécifique aux pages sera injecté ici -->
-        {% endblock %}
+      {% block content %}
+      <!-- Le contenu spécifique aux pages sera injecté ici -->
+      {% endblock %}
     </main>
 
     <!-- Pied de page (Footer) -->
     <footer class="bg-white border-top py-3 text-center text-muted mt-auto">
-        <div class="container">
-            <small>&copy; 2026 Université de Yaoundé I — Système de Gestion Académique</small>
-        </div>
+      <div class="container">
+        <small
+          >&copy; 2026 Université de Yaoundé I — Système de Gestion
+          Académique</small
+        >
+      </div>
     </footer>
 
     <!-- Bootstrap 5 JS Bundle (nécessaire pour la fermeture des alertes et le menu hamburger) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+  </body>
 </html>

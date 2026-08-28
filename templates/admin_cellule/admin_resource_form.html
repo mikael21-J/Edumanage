@@ -1,0 +1,270 @@
+{% extends 'base.html' %} {% block title %} {% if editing %}Modifier{% else
+%}Ajouter{% endif %} {{ label }} {% endblock %} {% block content %}
+<style>
+  .form-page {
+      --ink: #131b2e;
+      --muted: #5f6678;
+      --blue: #004ac6;
+      --line: #c3c6d7;
+      color: var(--ink);
+      margin: -1.5rem -.75rem;
+      min-height: calc(100vh - 180px);
+      background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+
+  .form-sidebar {
+      width: 240px;
+      flex: 0 0 240px;
+      background: rgba(242, 243, 255, .94);
+      border-right: 1px solid var(--line);
+  }
+
+  .form-brand {
+      color: var(--blue);
+      font: 700 1.5rem/2rem 'Hanken Grotesk', sans-serif;
+  }
+
+  .form-label-ui,
+  .form-meta {
+      color: var(--muted);
+      font: 600 .7rem/1rem Inter, sans-serif;
+  }
+
+      .form-brand { color: var(--blue); font: 700 1.5rem/2rem 'Hanken Grotesk', sans-serif; }
+      .form-label-ui, .form-meta { color: var(--muted); font: 600 .7rem/1rem Inter, sans-serif; }
+      .form-label-ui { letter-spacing: .09em; text-transform: uppercase; }
+      .form-nav { color: var(--muted); border-radius: 4px; font: 600 .85rem/1.2rem Inter, sans-serif; text-decoration: none; }
+      .form-nav:hover, .form-nav.active { color: var(--blue); background: #d0e1fb; }
+      .form-topbar { min-height: 64px; background: rgba(250, 248, 255, .94); border-bottom: 1px solid var(--line); }
+      .form-avatar { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--blue); color: #fff; font: 700 .8rem 'Hanken Grotesk', sans-serif; }
+      .form-main { max-width: 900px; }
+      .form-title { font: 700 1.45rem/1.2 'Hanken Grotesk', sans-serif; }
+      .form-subtitle { color: var(--muted); font: 400 .8rem/1.3rem Inter, sans-serif; }
+      .form-panel { width: min(100%, 360px); background: rgba(250, 248, 255, .94); border: 1px solid var(--line); border-radius: 8px; padding: 1rem; }
+      .form-panel label { color: var(--muted); font: 600 .65rem/1rem Inter, sans-serif; letter-spacing: .04em; text-transform: uppercase; }
+      .form-panel p { margin-bottom: .55rem; }
+      .form-panel input, .form-panel select, .form-panel textarea { width: 100%; min-height: 32px; padding: .35rem .55rem; border: 1px solid var(--line); border-radius: 4px; font-size: .75rem; }
+      .form-panel input:focus, .form-panel select:focus, .form-panel textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(0, 74, 198, .14); }
+      .form-panel .helptext { display: block; margin-top: .15rem; color: var(--muted); font-size: .64rem; }
+      .form-panel .btn { padding: .4rem .65rem; font-size: .7rem; }
+
+      @media (max-width: 767px) {
+          .form-page { margin: -1.5rem -.75rem; }
+          .form-sidebar { display: none; }
+          .form-main { padding: 1.25rem 1rem !important; }
+          .form-topbar { padding: .75rem 1rem !important; }
+      }
+      letter-spacing: .09em;
+      text-transform: uppercase;
+  }
+
+  .form-nav {
+      color: var(--muted);
+      border-radius: 4px;
+      font: 600 .85rem/1.2rem Inter, sans-serif;
+      text-decoration: none;
+  }
+
+  .form-nav:hover,
+  .form-nav.active {
+      color: var(--blue);
+      background: #d0e1fb;
+  }
+
+  .form-topbar {
+      min-height: 64px;
+      background: rgba(250, 248, 255, .94);
+      border-bottom: 1px solid var(--line);
+  }
+
+  .form-avatar {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font: 700 .8rem 'Hanken Grotesk', sans-serif;
+  }
+
+  .form-main {
+      max-width: 900px;
+  }
+
+  .form-title {
+      font: 700 1.45rem/1.2 'Hanken Grotesk', sans-serif;
+  }
+
+  .form-subtitle {
+      color: var(--muted);
+      font: 400 .8rem/1.3rem Inter, sans-serif;
+  }
+
+  .form-panel {
+      width: min(100%, 360px);
+      padding: 1rem;
+      background: rgba(250, 248, 255, .94);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+  }
+
+  .form-panel label {
+      color: var(--muted);
+      font: 600 .65rem/1rem Inter, sans-serif;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+  }
+
+  .form-panel p {
+      margin-bottom: .55rem;
+  }
+
+  .form-panel input,
+  .form-panel select,
+  .form-panel textarea {
+      width: 100%;
+      min-height: 32px;
+      padding: .35rem .55rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-size: .75rem;
+  }
+
+  .form-panel input:focus,
+  .form-panel select:focus,
+  .form-panel textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(0, 74, 198, .14);
+  }
+
+  .form-panel .helptext {
+      display: block;
+      margin-top: .15rem;
+      color: var(--muted);
+      font-size: .64rem;
+  }
+
+  .form-panel .btn {
+      padding: .4rem .65rem;
+      font-size: .7rem;
+  }
+
+  @media (max-width: 767px) {
+      .form-page {
+          margin: -1.5rem -.75rem;
+      }
+
+      .form-sidebar {
+          display: none;
+      }
+
+      .form-main {
+          padding: 1.25rem 1rem !important;
+      }
+
+      .form-topbar {
+          padding: .75rem 1rem !important;
+      }
+  }
+</style>
+
+<div class="form-page d-flex">
+  <aside class="form-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="form-avatar">
+        <i class="fa-solid fa-building-columns"></i>
+      </div>
+      <div>
+        <div class="form-brand">EduManage</div>
+        <div class="form-label-ui">Cellule informatique</div>
+      </div>
+    </div>
+
+    <nav class="d-grid gap-2">
+      <a
+        class="form-nav d-flex gap-2 p-3"
+        href="{% url 'dashboard_admin_cellule' %}"
+      >
+        <i class="fa-solid fa-table-columns"></i>
+        Dashboard
+      </a>
+      <a
+        class="form-nav {% if resource == 'etudiants' %}active{% endif %} d-flex gap-2 p-3"
+        href="{% url 'admin_resource' 'etudiants' %}"
+      >
+        <i class="fa-solid fa-users"></i>
+        Étudiants
+      </a>
+      <a
+        class="form-nav {% if resource == 'enseignants' %}active{% endif %} d-flex gap-2 p-3"
+        href="{% url 'admin_resource' 'enseignants' %}"
+      >
+        <i class="fa-solid fa-chalkboard-user"></i>
+        Enseignants
+      </a>
+      <a
+        class="form-nav {% if resource == 'ue' %}active{% endif %} d-flex gap-2 p-3"
+        href="{% url 'admin_resource' 'ue' %}"
+      >
+        <i class="fa-solid fa-book-open"></i>
+        UE
+      </a>
+    </nav>
+  </aside>
+
+  <div class="flex-grow-1 min-w-0">
+    <header
+      class="form-topbar d-flex justify-content-between align-items-center px-3 px-lg-5"
+    >
+      <span class="form-label-ui">Formulaire {{ label }}</span>
+      <div class="d-flex align-items-center gap-3">
+        <span class="form-meta d-none d-sm-inline">
+          {{ admin_cellule.prenom }} {{ admin_cellule.nom }}
+        </span>
+        <div class="form-avatar">
+          {{ admin_cellule.prenom|first }}{{ admin_cellule.nom|first }}
+        </div>
+      </div>
+    </header>
+
+    <main class="form-main w-100 px-3 px-lg-5 py-5">
+      <header class="mb-3">
+        <h1 class="form-title mb-1">
+          {% if editing %}Modifier{% else %}Ajouter{% endif %} {{ label|lower }}
+        </h1>
+        <p class="form-subtitle mb-0">
+          Renseignez les informations nécessaires.
+        </p>
+      </header>
+
+      <section class="form-panel">
+        <a
+          class="form-subtitle d-inline-flex align-items-center mb-3"
+          href="{% url 'admin_resource' resource %}"
+        >
+          <i class="fa-solid fa-arrow-left me-2"></i>
+          Retour à la liste
+        </a>
+
+        <form method="post">
+          {% csrf_token %} {{ form.as_p }}
+
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <a
+              class="btn btn-sm btn-outline-secondary"
+              href="{% url 'admin_resource' resource %}"
+            >
+              Annuler
+            </a>
+            <button class="btn btn-sm btn-primary" type="submit">
+              <i class="fa-solid fa-check me-2"></i>
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

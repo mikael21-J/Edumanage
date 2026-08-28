@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}EduManage - L'excellence académique{% endblock %}
+
+{% block content %}
+<style>
+  .home-page {
+    --home-blue: #003594;
+    --home-bright: #004ac6;
+    --home-ink: #131b2e;
+    --home-muted: #505f76;
+    --home-line: #c3c6d7;
+    color: var(--home-ink);
+    margin: -1.5rem -0.75rem;
+    overflow: hidden;
+    background: #faf8ff;
+  }
+  .home-hero {
+    position: relative;
+    isolation: isolate;
+    min-height: 540px;
+    display: grid;
+    place-items: center;
+    padding: 6rem 1rem;
+    text-align: center;
+    background:
+      linear-gradient(135deg, rgba(250, 248, 255, .9), rgba(226, 231, 255, .76)),
+      url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1800&q=85') center/cover;
+  }
+  .home-hero::after {
+    content: '';
+    position: absolute;
+    inset: 12% 8%;
+    z-index: -1;
+    border: 1px solid rgba(0, 53, 148, .16);
+    transform: rotate(-2deg);
+    animation: home-frame 8s ease-in-out infinite alternate;
+  }
+  .home-hero-content {
+    max-width: 760px;
+    animation: home-rise .75s ease-out both;
+  }
+  .home-kicker,
+  .home-label {
+    color: var(--home-bright);
+    font: 600 .75rem/1rem Inter, sans-serif;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .home-title {
+    margin: .75rem 0 1rem;
+    color: var(--home-blue);
+    font: 700 clamp(2.5rem, 7vw, 4.5rem)/1 Hanken Grotesk, sans-serif;
+  }
+  .home-lead,
+  .home-copy {
+    color: var(--home-muted);
+    font: 400 1rem/1.6 Inter, sans-serif;
+  }
+  .home-lead { max-width: 620px; margin: 0 auto 2rem; }
+  .home-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .8rem 1.25rem;
+    border: 1px solid var(--home-bright);
+    border-radius: 4px;
+    color: #fff;
+    background: var(--home-blue);
+    font: 600 .75rem/1rem Inter, sans-serif;
+    letter-spacing: .06em;
+    text-decoration: none;
+    transition: transform .2s, background .2s, box-shadow .2s;
+  }
+  .home-button:hover {
+    color: #fff;
+    background: var(--home-bright);
+    box-shadow: 0 8px 18px rgba(0, 53, 148, .2);
+    transform: translateY(-2px);
+  }
+  .home-button.secondary {
+    color: var(--home-blue);
+    background: rgba(255, 255, 255, .65);
+  }
+  .home-section { padding: 5rem 1rem; }
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    gap: 4rem;
+    max-width: 1120px;
+    margin: auto;
+  }
+  .home-image-wrap {
+    overflow: hidden;
+    border: 1px solid var(--home-line);
+    border-radius: 8px;
+    animation: home-float 6s ease-in-out infinite;
+  }
+  .home-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform .6s ease;
+  }
+  .home-image-wrap:hover .home-image { transform: scale(1.04); }
+  .home-section.alt { background: #fff; }
+  .home-list { display: grid; gap: 1rem; padding: 0; margin: 1.5rem 0 0; list-style: none; }
+  .home-list li { display: flex; align-items: center; gap: .75rem; font: 400 .9rem/1.4 Inter, sans-serif; }
+  .home-list i { color: var(--home-bright); }
+  .home-footer { padding: 2rem 1rem; border-top: 1px solid var(--home-line); text-align: center; color: var(--home-muted); font: 400 .8rem/1.4 Inter, sans-serif; }
+  @keyframes home-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes home-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  @keyframes home-frame { from { transform: rotate(-2deg) translate(0); } to { transform: rotate(1deg) translate(8px, -5px); } }
+  @media (max-width: 767px) {
+    .home-hero { min-height: 500px; padding: 4rem 1rem; }
+    .home-section { padding: 3.5rem 1rem; }
+    .home-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .home-grid.reverse .home-image-wrap { order: -1; }
+  }
+</style>
+
+<div class="home-page">
+  <section class="home-hero">
+    <div class="home-hero-content">
+      <div class="home-kicker">Portail académique · Université de Yaoundé I</div>
+      <h1 class="home-title">EduManage</h1>
+      <p class="home-lead">Une plateforme claire et efficace pour gérer vos unités d'enseignement, vos évaluations et vos notes.</p>
+      <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+        <a class="home-button" href="{% url 'login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i>Se connecter</a>
+        <a class="home-button secondary" href="#presentation"><i class="fa-solid fa-arrow-down"></i>En savoir plus</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section" id="presentation">
+    <div class="home-grid">
+      <div class="home-image-wrap">
+        <img class="home-image" alt="Étudiants collaborant en classe" src="https://la1ere.franceinfo.fr/image/l7iu9SwbJdTYaFKdXmEP3x0a6rk/99x0:493x394/320x320/filters:quality(80)/outremer%2F2022%2F07%2F05%2F62c4b31766fd6_bac-1.jpg">
+      </div>
+      <div>
+        <div class="home-label mb-2">Une expérience pensée pour vous</div>
+        <h2 class="h1 mb-3" style="font-family: 'Hanken Grotesk', sans-serif">Conçu pour la clarté et l'efficacité</h2>
+        <p class="home-copy">EduManage accompagne les étudiants, les enseignants et les administrateurs dans chaque étape du parcours académique, avec des informations faciles à trouver et des processus simples à suivre.</p>
+        <span class="d-inline-flex align-items-center gap-2 mt-3 px-2 py-2 border rounded" style="font: 400 .8rem/1rem 'JetBrains Mono', monospace; color: var(--home-blue)"><i class="fa-solid fa-circle-check"></i>Système académique validé</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section alt">
+    <div class="home-grid reverse">
+      <div>
+        <div class="home-label mb-2">Une technologie utile</div>
+        <h2 class="h1 mb-3" style="font-family: 'Hanken Grotesk', sans-serif">La technologie au service de l'éducation</h2>
+        <p class="home-copy">Une interface discrète et structurée pour rester concentré sur les données, les résultats et les décisions qui comptent.</p>
+        <ul class="home-list">
+          <li><i class="fa-solid fa-graduation-cap"></i>Gestion universitaire complète</li>
+          <li><i class="fa-solid fa-table-list"></i>Notes et évaluations accessibles rapidement</li>
+          <li><i class="fa-solid fa-layer-group"></i>Processus clairs pour chaque rôle</li>
+        </ul>
+      </div>
+      <div class="home-image-wrap">
+        <img class="home-image" alt="Étudiant utilisant un ordinateur pour ses recherches" src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1200&q=85">
+      </div>
+    </div>
+  </section>
+
+  <footer class="home-footer">© 2026 EduManage · Plateforme académique de l'Université de Yaoundé I</footer>
+</div>
+{% endblock %}
