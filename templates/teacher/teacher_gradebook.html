@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ evaluation_label }} - {{ ue.code_ue }}{% endblock %}
+
+{% block content %}
+<style>
+  .gradebook-page {
+    --book-ink: #131b2e;
+    --book-muted: #5f6678;
+    --book-blue: #004ac6;
+    --book-surface: #faf8ff;
+    --book-line: #c3c6d7;
+    color: var(--book-ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+  .gradebook-sidebar {
+    width: 250px;
+    flex: 0 0 250px;
+    background: rgba(242, 243, 255, 0.94);
+    border-right: 1px solid var(--book-line);
+  }
+  .gradebook-brand {
+    color: var(--book-blue);
+    font: 700 1.5rem/2rem "Hanken Grotesk", sans-serif;
+  }
+  .gradebook-label {
+    color: var(--book-muted);
+    font: 600 0.7rem/1rem Inter, sans-serif;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .gradebook-nav {
+    color: var(--book-muted);
+    border-radius: 4px;
+    font: 600 0.82rem/1.2rem Inter, sans-serif;
+    text-decoration: none;
+  }
+  .gradebook-nav:hover,
+  .gradebook-nav.active {
+    color: var(--book-blue);
+    background: #d0e1fb;
+  }
+  .gradebook-main {
+    max-width: 1280px;
+  }
+  .gradebook-back {
+    color: var(--book-muted);
+    font: 500 0.82rem/1.2rem Inter, sans-serif;
+    text-decoration: none;
+  }
+  .gradebook-back:hover {
+    color: var(--book-blue);
+  }
+  .gradebook-title {
+    font: 700 clamp(1.55rem, 3vw, 2rem)/1.2 "Hanken Grotesk", sans-serif;
+  }
+  .gradebook-subtitle,
+  .gradebook-meta {
+    color: var(--book-muted);
+    font: 400 0.88rem/1.4rem Inter, sans-serif;
+  }
+  .gradebook-course,
+  .gradebook-table,
+  .gradebook-stat {
+    background: rgba(250, 248, 255, 0.9);
+    border: 1px solid var(--book-line);
+    border-radius: 8px;
+  }
+  .gradebook-course {
+    position: relative;
+    overflow: hidden;
+    padding: 1.35rem 1.5rem;
+  }
+  .gradebook-course::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: var(--book-blue);
+  }
+  .gradebook-code {
+    color: var(--book-blue);
+    font: 700 0.85rem/1rem "JetBrains Mono", monospace;
+  }
+  .gradebook-type {
+    display: inline-block;
+    padding: 0.35rem 0.55rem;
+    color: #003ea8;
+    background: #d0e1fb;
+    border-radius: 3px;
+    font: 600 0.72rem/1rem Inter, sans-serif;
+  }
+  .gradebook-stat {
+    padding: 1rem 1.15rem;
+  }
+  .gradebook-stat-value {
+    color: var(--book-blue);
+    font: 700 1.45rem/1.2 "Hanken Grotesk", sans-serif;
+  }
+  .gradebook-stat-label {
+    color: var(--book-muted);
+    font: 600 0.68rem/1rem Inter, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .gradebook-table {
+    overflow: hidden;
+  }
+  .gradebook-table-header {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid var(--book-line);
+  }
+  .gradebook-table-header h2 {
+    margin: 0;
+    font: 700 1.2rem/1.3rem "Hanken Grotesk", sans-serif;
+  }
+  .gradebook-table table {
+    margin: 0;
+    color: var(--book-ink);
+  }
+  .gradebook-table th {
+    padding: 0.9rem 1.25rem;
+    color: var(--book-muted);
+    background: #fff;
+    border-bottom-color: var(--book-line);
+    font: 600 0.68rem/1rem Inter, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .gradebook-table td {
+    padding: 0.75rem 1.25rem;
+    border-bottom-color: var(--book-line);
+    font: 400 0.85rem/1.3rem Inter, sans-serif;
+    vertical-align: middle;
+  }
+  .gradebook-table tbody tr:hover {
+    background: #f2f3ff;
+  }
+  .student-matricule {
+    color: var(--book-blue);
+    font: 500 0.75rem/1rem "JetBrains Mono", monospace;
+  }
+  .grade-input {
+    width: 120px;
+    min-height: 40px;
+    border: 1px solid var(--book-line);
+    border-radius: 4px;
+    background: #fff;
+    font: 600 0.9rem/1rem "JetBrains Mono", monospace;
+  }
+  .grade-input:focus {
+    border-color: var(--book-blue);
+    box-shadow: 0 0 0 2px rgba(0, 74, 198, 0.14);
+  }
+  .publish-button {
+    color: #fff;
+    background: var(--book-blue);
+    border: 0;
+    border-radius: 4px;
+    font: 600 0.76rem/1rem Inter, sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    box-shadow: 0 6px 14px rgba(0, 74, 198, 0.18);
+  }
+  .publish-button:hover {
+    color: #fff;
+    background: #003ea8;
+  }
+  .print-button {
+    color: var(--book-ink);
+    background: #fff;
+    border: 1px solid var(--book-line);
+    border-radius: 4px;
+    font: 600 0.76rem/1rem Inter, sans-serif;
+  }
+  .print-button:hover {
+    color: var(--book-blue);
+    border-color: var(--book-blue);
+  }
+  @media print {
+    .navbar,
+    footer,
+    .gradebook-sidebar,
+    .gradebook-actions,
+    .gradebook-back {
+      display: none !important;
+    }
+    .gradebook-page {
+      margin: 0;
+      background: #fff;
+    }
+    .gradebook-main {
+      max-width: none;
+      padding: 0 !important;
+    }
+    .gradebook-course,
+    .gradebook-table,
+    .gradebook-stat {
+      border-color: #999;
+      box-shadow: none;
+    }
+    .gradebook-table td,
+    .gradebook-table th {
+      padding: 0.6rem;
+    }
+  }
+  @media (max-width: 767px) {
+    .gradebook-page {
+      margin: -1.5rem -0.75rem;
+    }
+    .gradebook-sidebar {
+      width: 100%;
+      flex-basis: auto;
+      border-right: 0;
+      border-bottom: 1px solid var(--book-line);
+    }
+    .gradebook-main {
+      padding: 1.25rem 1rem !important;
+    }
+    .gradebook-sidebar nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.35rem;
+    }
+    .gradebook-nav {
+      padding: 0.6rem 0.25rem !important;
+      text-align: center;
+      font-size: 0.7rem;
+    }
+    .gradebook-table th,
+    .gradebook-table td {
+      padding: 0.7rem;
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<div class="gradebook-page d-flex flex-column flex-md-row">
+  <aside class="gradebook-sidebar d-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="teacher-avatar">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <div class="gradebook-brand">EduManage</div>
+        <div class="gradebook-label">Academic Portal</div>
+      </div>
+    </div>
+    <div class="gradebook-label mb-3">Évaluations de l’UE</div>
+    <nav class="d-grid gap-2">
+      <a class="gradebook-nav d-flex align-items-center gap-2 p-3" href="{% url 'dashboard_enseignant' %}">
+        <i class="fa-solid fa-table-columns"></i> Tableau de bord
+      </a>
+      <a class="gradebook-nav d-flex align-items-center gap-2 p-3" href="{% url 'teacher_evaluations' ue.code_ue %}">
+        <i class="fa-solid fa-list-check"></i> Types d’évaluation
+      </a>
+      {% for code, label in evaluation_choices %}
+      <a class="gradebook-nav d-flex align-items-center gap-2 p-3 {% if code == evaluation_type %}active{% endif %}" href="{% url 'teacher_gradebook' ue.code_ue code %}">
+        <i class="fa-solid {% if code == 'CC' %}fa-pen-to-square{% elif code == 'TP' %}fa-flask{% elif code == 'SN' %}fa-file-signature{% else %}fa-rotate-left{% endif %}"></i>
+        <span>{{ label }}</span>
+      </a>
+      {% endfor %}
+    </nav>
+    <div class="mt-auto pt-4 border-top">
+      <a class="gradebook-nav d-flex align-items-center gap-2 p-3" href="{% url 'logout' %}">
+        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <main class="gradebook-main flex-grow-1 w-100 px-3 px-lg-5 py-4 py-lg-5">
+    <div class="mb-3">
+      <a class="gradebook-back" href="{% url 'teacher_evaluations' ue.code_ue %}">
+        <i class="fa-solid fa-arrow-left me-2"></i>Retour aux évaluations
+      </a>
+    </div>
+    <header class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+      <div>
+        <div class="gradebook-label mb-2">Saisie des résultats</div>
+        <h1 class="gradebook-title mb-2">{{ evaluation_label }}</h1>
+        <p class="gradebook-subtitle mb-0">
+          {{ ue.code_ue }} · {{ ue.intitule }} · {{ ue.credits }} crédits
+        </p>
+      </div>
+      <div class="gradebook-actions d-flex gap-2">
+        <button type="button" class="print-button px-3 py-2" onclick="window.print()">
+          <i class="fa-solid fa-print me-2"></i>Imprimer
+        </button>
+        <button type="submit" form="grade-form" class="publish-button px-3 py-2">
+          <i class="fa-solid fa-cloud-arrow-up me-2"></i>{% if evaluation_type == 'SN' %}Enregistrer les notes{% else %}Publier les notes{% endif %}
+        </button>
+      </div>
+    </header>
+
+    <section class="gradebook-course mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <span class="gradebook-code">{{ ue.code_ue }}</span>
+          <h2 class="h4 mt-2 mb-1" style="font-family: 'Hanken Grotesk', sans-serif">
+            {{ ue.intitule }}
+          </h2>
+          <p class="gradebook-subtitle mb-0">
+            {{ ue.filiere.nom_filiere }} · {{ ue.niveau }} · {{ ue.semestre }}
+          </p>
+        </div>
+        <span class="gradebook-type">{{ evaluation_type }}</span>
+      </div>
+    </section>
+
+    <section class="row g-3 mb-4" aria-label="Résumé du tableau">
+      <div class="col-6 col-lg-4">
+        <div class="gradebook-stat h-100">
+          <div class="gradebook-stat-value">{{ student_rows|length }}</div>
+          <div class="gradebook-stat-label mt-2">Étudiants inscrits</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-4">
+        <div class="gradebook-stat h-100">
+          <div class="gradebook-stat-value">{{ evaluation_type }}</div>
+          <div class="gradebook-stat-label mt-2">Type d’évaluation</div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="gradebook-stat h-100">
+          <div class="gradebook-stat-value">/ 20</div>
+          <div class="gradebook-stat-label mt-2">Barème</div>
+        </div>
+      </div>
+    </section>
+
+    <form id="grade-form" method="post">
+      {% csrf_token %}
+      <section class="gradebook-table">
+        <div class="gradebook-table-header d-flex justify-content-between align-items-center">
+          <h2>Tableau des notes</h2>
+          <span class="gradebook-meta">
+            <i class="fa-solid fa-lock me-1"></i> Saisie privée
+          </span>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Matricule</th>
+                <th>Nom et prénom</th>
+                <th class="text-end">Note / 20</th>
+                <th class="text-center">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for student, note in student_rows %}
+              <tr>
+                <td class="gradebook-meta">{{ forloop.counter }}</td>
+                <td class="student-matricule">{{ student.matricule }}</td>
+                <td class="fw-semibold">
+                  {{ student.nom }} {{ student.prenom }}
+                </td>
+                <td class="text-end">
+                  <input
+                    class="grade-input form-control ms-auto text-end"
+                    type="number"
+                    name="note_{{ student.matricule }}"
+                    min="0"
+                    max="20"
+                    step="0.01"
+                    value="{% if note %}{{ note.valeur_note }}{% endif %}"
+                    aria-label="Note de {{ student.matricule }}"
+                  />
+                </td>
+                <td class="text-center">
+                  {% if note %}
+                    <span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>Publiée</span>
+                  {% else %}
+                    <span class="gradebook-meta">En attente</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center gradebook-meta py-5">
+                  Aucun étudiant inscrit à cette UE.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </form>
+  </main>
+</div>
+{% endblock %}

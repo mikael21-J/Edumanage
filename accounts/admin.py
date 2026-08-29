@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Etudiant, Enseignant
+from .models import AdminCellule, Etudiant, Enseignant
 
 
 @admin.register(Etudiant)
@@ -13,3 +13,10 @@ class EtudiantAdmin(admin.ModelAdmin):
 class EnseignantAdmin(admin.ModelAdmin):
     list_display = ('matricule', 'nom', 'prenom', 'fonction')
     search_fields = ('matricule', 'nom', 'prenom')
+
+
+@admin.register(AdminCellule)
+class AdminCelluleAdmin(admin.ModelAdmin):
+    list_display = ('username', 'nom', 'prenom', 'fonction', 'actif')
+    list_filter = ('actif',)
+    search_fields = ('username', 'nom', 'prenom')

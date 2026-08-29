@@ -1,0 +1,26 @@
+<div class="d-flex flex-nowrap gap-1">
+  <a
+    class="btn btn-sm btn-outline-primary admin-button"
+    href="{% url 'admin_resource_edit' resource item.pk %}"
+    title="Modifier"
+  >
+    <i class="fa-solid fa-pen"></i>
+  </a>
+
+  <form
+    method="post"
+    action="{% url 'admin_resource_edit' resource item.pk %}"
+    class="m-0"
+  >
+    {% csrf_token %}
+    <input type="hidden" name="action" value="delete" />
+    <button
+      class="btn btn-sm btn-outline-danger admin-button"
+      type="submit"
+      title="Supprimer"
+      onclick="return confirm('Confirmer la suppression ?');"
+    >
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  </form>
+</div>

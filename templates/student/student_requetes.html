@@ -1,0 +1,270 @@
+{% extends 'base.html' %} {% block title %}Mes requêtes{% endblock %} {% block content %}
+<style>
+  .student-requests {
+    --student-ink: #131b2e;
+    --student-muted: #5f6678;
+    --student-blue: #004ac6;
+    --student-line: #c3c6d7;
+    color: var(--student-ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+
+  .student-requests-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.9);
+    border-right: 1px solid var(--student-line);
+  }
+
+  .student-requests-brand {
+    color: var(--student-blue);
+    font:
+      700 1.5rem/2rem "Hanken Grotesk",
+      sans-serif;
+  }
+
+  .student-requests-label {
+    color: var(--student-muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .student-requests-nav {
+    color: var(--student-muted);
+    border-radius: 4px;
+    font:
+      600 0.85rem/1.2rem Inter,
+      sans-serif;
+    text-decoration: none;
+  }
+
+  .student-requests-nav:hover,
+  .student-requests-nav.active {
+    color: var(--student-blue);
+    background: #d0e1fb;
+  }
+
+  .student-requests-main {
+    max-width: 1280px;
+  }
+
+  .student-requests-title {
+    color: var(--student-blue);
+    font:
+      700 1.8rem/1.2 "Hanken Grotesk",
+      sans-serif;
+  }
+
+  .student-requests-subtitle,
+  .student-requests-meta {
+    color: var(--student-muted);
+    font:
+      400 0.85rem/1.4rem Inter,
+      sans-serif;
+  }
+
+  .student-requests-avatar {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--student-blue);
+    color: #fff;
+    font:
+      700 0.85rem "Hanken Grotesk",
+      sans-serif;
+  }
+
+  .student-requests-table {
+    overflow: hidden;
+    background: rgba(250, 248, 255, 0.9);
+    border: 1px solid var(--student-line);
+    border-radius: 8px;
+  }
+
+  .student-requests-table-header {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid var(--student-line);
+  }
+
+  .student-requests-table th {
+    padding: 0.75rem 1rem;
+    color: var(--student-muted);
+    background: #fff;
+    border-bottom-color: var(--student-line);
+    font:
+      600 0.68rem/1rem Inter,
+      sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .student-requests-table td {
+    padding: 0.75rem 1rem;
+    border-bottom-color: var(--student-line);
+    font:
+      400 0.82rem/1.3rem Inter,
+      sans-serif;
+    vertical-align: middle;
+  }
+
+  .student-requests-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .student-requests-published {
+    color: #087f5b;
+    font-weight: 600;
+  }
+
+  .student-requests-pending {
+    color: #9a6700;
+    font-weight: 600;
+  }
+
+  @media (max-width: 767px) {
+    .student-requests {
+      margin: -1.5rem -0.75rem;
+    }
+    .student-requests-sidebar {
+      display: none;
+    }
+    .student-requests-main {
+      padding: 1.5rem 1rem !important;
+    }
+    .student-requests-table th,
+    .student-requests-table td {
+      padding: 0.65rem 0.75rem;
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<div class="student-requests d-flex">
+  <aside class="student-requests-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="student-requests-avatar">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <div class="student-requests-brand">EduManage</div>
+        <div class="student-requests-label">Academic Portal</div>
+      </div>
+    </div>
+
+    <nav class="d-grid gap-2">
+      <a
+        class="student-requests-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'dashboard_etudiant' %}"
+      >
+        <i class="fa-solid fa-table-columns"></i>
+        Tableau de bord
+      </a>
+      <a
+        class="student-requests-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'dashboard_etudiant' %}#ues"
+      >
+        <i class="fa-solid fa-book-open"></i>
+        Mes UE
+      </a>
+      <a
+        class="student-requests-nav active d-flex align-items-center gap-2 p-3"
+        href="{% url 'student_requetes' %}"
+      >
+        <i class="fa-solid fa-inbox"></i>
+        Mes requêtes
+      </a>
+    </nav>
+
+    <div class="mt-auto pt-4">
+      <a
+        class="student-requests-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'logout' %}"
+      >
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <main
+    class="student-requests-main flex-grow-1 w-100 px-3 px-lg-5 py-4 py-lg-5"
+  >
+    <header class="mb-4 pb-4 border-bottom">
+      <div class="student-requests-label mb-2">Espace étudiant</div>
+      <h1 class="student-requests-title mb-2">Mes requêtes</h1>
+      <p class="student-requests-subtitle mb-0">
+        Suivez les signalements envoyés concernant vos notes.
+      </p>
+    </header>
+
+    <section class="student-requests-table">
+      <div
+        class="student-requests-table-header d-flex justify-content-between align-items-center"
+      >
+        <div>
+          <h2 class="h5 mb-1">Historique des requêtes</h2>
+          <p class="student-requests-meta mb-0">
+            Vos demandes et leur état de traitement.
+          </p>
+        </div>
+        <i class="fa-solid fa-inbox text-primary fs-5"></i>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>UE</th>
+              <th>Évaluation</th>
+              <th>Motif</th>
+              <th>Date d’envoi</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for requete in requetes %}
+            <tr>
+              <td>
+                <strong>{{ requete.ue.code_ue }}</strong><br />
+                <span class="student-requests-meta"
+                  >{{ requete.ue.intitule }}</span
+                >
+              </td>
+              <td>{{ requete.type_evaluation }}</td>
+              <td>{{ requete.get_motif_display }}</td>
+              <td>{{ requete.date_envoi|date:'d/m/Y H:i' }}</td>
+              <td>
+                {% if requete.etat == 'VALIDEE' %}
+                <span class="student-requests-published">
+                  <i class="fa-solid fa-circle-check me-1"></i>Validée
+                </span>
+                {% else %}
+                <span class="student-requests-pending">
+                  <i class="fa-solid fa-clock me-1"></i>Envoyée
+                </span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center student-requests-meta py-5">
+                Vous n’avez envoyé aucune requête.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

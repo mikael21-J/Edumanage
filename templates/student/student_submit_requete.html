@@ -1,0 +1,252 @@
+{% extends 'base.html' %} {% block title %}Soumettre une requête{% endblock %}
+{% block content %}
+<style>
+  .request-page {
+    --request-ink: #131b2e;
+    --request-muted: #5f6678;
+    --request-blue: #004ac6;
+    --request-surface: #faf8ff;
+    --request-line: #c3c6d7;
+    color: var(--request-ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+
+  .request-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.9);
+    border-right: 1px solid var(--request-line);
+  }
+
+  .request-brand {
+    color: var(--request-blue);
+    font:
+      700 1.5rem/2rem "Hanken Grotesk",
+      sans-serif;
+  }
+
+  .request-label {
+    color: var(--request-muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .request-nav {
+    color: var(--request-muted);
+    border-radius: 4px;
+    font:
+      600 0.85rem/1.2rem Inter,
+      sans-serif;
+    text-decoration: none;
+  }
+
+  .request-nav:hover,
+  .request-nav.active {
+    color: var(--request-blue);
+    background: #d0e1fb;
+  }
+
+  .request-main {
+    max-width: 1000px;
+  }
+
+  .request-title {
+    color: var(--request-blue);
+    font:
+      700 1.7rem/1.2 "Hanken Grotesk",
+      sans-serif;
+  }
+
+  .request-subtitle,
+  .request-meta {
+    color: var(--request-muted);
+    font:
+      400 0.85rem/1.4rem Inter,
+      sans-serif;
+  }
+
+  .request-profile {
+    padding: 1.25rem;
+    background: rgba(250, 248, 255, 0.84);
+    border: 1px solid var(--request-line);
+    border-radius: 8px;
+  }
+
+  .request-form-card {
+    width: min(100%, 460px);
+    padding: 1.25rem;
+    background: rgba(250, 248, 255, 0.94);
+    border: 1px solid var(--request-line);
+    border-radius: 8px;
+  }
+
+  .request-form-card label {
+    color: var(--request-muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .request-form-card p {
+    margin-bottom: 0.8rem;
+  }
+
+  .request-form-card input,
+  .request-form-card select,
+  .request-form-card textarea {
+    width: 100%;
+    min-height: 36px;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--request-line);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 0.8rem;
+  }
+
+  .request-form-card textarea {
+    min-height: 110px;
+    resize: vertical;
+  }
+
+  .request-form-card input:focus,
+  .request-form-card select:focus,
+  .request-form-card textarea:focus {
+    border-color: var(--request-blue);
+    box-shadow: 0 0 0 2px rgba(0, 74, 198, 0.14);
+  }
+
+  .request-form-card .helptext {
+    color: var(--request-muted);
+    font-size: 0.72rem;
+  }
+
+  .request-avatar {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--request-blue);
+    color: #fff;
+    font:
+      700 0.9rem "Hanken Grotesk",
+      sans-serif;
+  }
+
+  .request-button {
+    border-radius: 4px;
+    font:
+      600 0.75rem/1rem Inter,
+      sans-serif;
+  }
+
+  @media (max-width: 767px) {
+    .request-page {
+      margin: -1.5rem -0.75rem;
+    }
+    .request-sidebar {
+      display: none;
+    }
+    .request-main {
+      padding: 1.5rem 1rem !important;
+    }
+    .request-form-card {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="request-page d-flex">
+  <aside class="request-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="request-avatar">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <div class="request-brand">EduManage</div>
+        <div class="request-label">Academic Portal</div>
+      </div>
+    </div>
+
+    <nav class="d-grid gap-2">
+      <a
+        class="request-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'dashboard_etudiant' %}"
+      >
+        <i class="fa-solid fa-table-columns"></i>
+        Tableau de bord
+      </a>
+      <a
+        class="request-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'dashboard_etudiant' %}#ues"
+      >
+        <i class="fa-solid fa-book-open"></i>
+        Mes UE
+      </a>
+      <a
+        class="request-nav active d-flex align-items-center gap-2 p-3"
+        href="{% url 'student_requetes' %}"
+      >
+        <i class="fa-solid fa-inbox"></i>
+        Mes requêtes
+      </a>
+    </nav>
+
+    <div class="mt-auto pt-4">
+      <a
+        class="request-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'logout' %}"
+      >
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <main class="request-main flex-grow-1 w-100 px-3 px-lg-5 py-4 py-lg-5">
+    <header class="request-profile d-flex align-items-center gap-3 mb-4">
+      <div class="request-avatar">
+        {{ etudiant.prenom|first }}{{ etudiant.nom|first }}
+      </div>
+      <div>
+        <div class="request-label mb-1">Espace étudiant</div>
+        <h1 class="request-title mb-1">Soumettre une requête</h1>
+        <p class="request-subtitle mb-0">
+          {{ inscription.ue.code_ue }} · {{ inscription.ue.intitule }}
+        </p>
+      </div>
+    </header>
+
+    <section class="request-form-card">
+      <p class="request-subtitle mb-4">
+        Signalez un problème concernant une note publiée.
+      </p>
+      <form method="post">
+        {% csrf_token %} {{ form.as_p }}
+        <div
+          class="d-flex justify-content-between align-items-center gap-2 mt-4"
+        >
+          <a
+            class="request-subtitle text-decoration-none"
+            href="{% url 'student_ue_detail' inscription.ue.code_ue %}"
+          >
+            <i class="fa-solid fa-arrow-left me-2"></i>
+            Retour aux notes
+          </a>
+          <button type="submit" class="btn btn-primary request-button">
+            <i class="fa-solid fa-paper-plane me-2"></i>
+            Envoyer
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+{% endblock %}

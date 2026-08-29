@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from accounts.models import Niveau, Enseignant
 
 
@@ -61,10 +63,38 @@ class UE(models.Model):
     filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE, related_name='ues')
     niveau = models.CharField(max_length=2, choices=Niveau.choices)
     semestre = models.CharField(max_length=2, choices=Semestre.choices)
+    # Nouveaux champs pour les pourcentages de notation
+    pourcentage_cc = models.PositiveIntegerField(
+        default=30,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text="Pourcentage Contrôle Continu (0-100)"
+    )
+    pourcentage_tp = models.PositiveIntegerField(
+        default=20,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text="Pourcentage Travaux Pratiques (0-100)"
+    )
+    pourcentage_sn = models.PositiveIntegerField(
+        default=50,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text="Pourcentage Session Normale (0-100)"
+    )
 
     class Meta:
         verbose_name = "Unité d'Enseignement (UE)"
         verbose_name_plural = "Unités d'Enseignement (UE)"
+
+    def clean(self):
+        """Valider que la somme des pourcentages = 100"""
+        total = self.pourcentage_cc + self.pourcentage_tp + self.pourcentage_sn
+        if total != 100:
+            raise ValidationError(
+                f"La somme des pourcentages doit être 100. Actuellement: CC={self.pourcentage_cc}% + TP={self.pourcentage_tp}% + SN={self.pourcentage_sn}% = {total}%"
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.code_ue} : {self.intitule} ({self.niveau} - {self.filiere.code_filiere})"

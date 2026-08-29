@@ -1,0 +1,382 @@
+{% extends 'base.html' %} {% block title %}Gestion {{ label }}{% endblock %} {% block content %}
+<style>
+  .resource-page {
+    --ink: #131b2e;
+    --muted: #5f6678;
+    --blue: #004ac6;
+    --line: #c3c6d7;
+    color: var(--ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+  .resource-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.94);
+    border-right: 1px solid var(--line);
+  }
+  .resource-brand {
+    color: var(--blue);
+    font:
+      700 1.5rem/2rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .resource-label,
+  .resource-meta {
+    color: var(--muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+  }
+  .resource-label {
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .resource-nav {
+    color: var(--muted);
+    border-radius: 4px;
+    font:
+      600 0.85rem/1.2rem Inter,
+      sans-serif;
+    text-decoration: none;
+  }
+  .resource-nav:hover,
+  .resource-nav.active {
+    color: var(--blue);
+    background: #d0e1fb;
+  }
+  .resource-topbar {
+    min-height: 64px;
+    background: rgba(250, 248, 255, 0.94);
+    border-bottom: 1px solid var(--line);
+  }
+  .resource-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font:
+      700 0.8rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .resource-title {
+    font:
+      700 1.5rem/1.2 "Hanken Grotesk",
+      sans-serif;
+  }
+  .resource-subtitle {
+    color: var(--muted);
+    font:
+      400 0.8rem/1.3rem Inter,
+      sans-serif;
+  }
+  .resource-table {
+    overflow: hidden;
+    background: rgba(250, 248, 255, 0.92);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .resource-header {
+    padding: 0.75rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+  .resource-filter,
+  .resource-search {
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 0.75rem;
+  }
+  .resource-table th {
+    padding: 0.55rem 0.75rem;
+    color: var(--muted);
+    background: #fff;
+    border-bottom-color: var(--line);
+    font:
+      600 0.64rem/1rem Inter,
+      sans-serif;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .resource-table td {
+    padding: 0.45rem 0.75rem;
+    border-bottom-color: var(--line);
+    font:
+      400 0.76rem/1.15rem Inter,
+      sans-serif;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .resource-table tbody tr:hover {
+    background: #f2f3ff;
+  }
+  .resource-button {
+    border-radius: 4px;
+    font:
+      600 0.68rem/1rem Inter,
+      sans-serif;
+    white-space: nowrap;
+  }
+  @media (max-width: 767px) {
+    .resource-page {
+      margin: -1.5rem -0.75rem;
+    }
+    .resource-sidebar {
+      display: none;
+    }
+    .resource-main {
+      padding: 1.25rem 1rem !important;
+    }
+    .resource-topbar {
+      padding: 0.75rem 1rem !important;
+    }
+    .resource-table th,
+    .resource-table td {
+      padding: 0.5rem 0.6rem;
+    }
+  }
+</style>
+
+<div class="resource-page d-flex">
+  <aside class="resource-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="resource-avatar">
+        <i class="fa-solid fa-building-columns"></i>
+      </div>
+      <div>
+        <div class="resource-brand">EduManage</div>
+        <div class="resource-label">Cellule informatique</div>
+      </div>
+    </div>
+    <nav class="d-grid gap-2">
+      <a
+        class="resource-nav d-flex gap-2 p-3"
+        href="{% url 'dashboard_admin_cellule' %}"
+        ><i class="fa-solid fa-table-columns"></i>Dashboard</a
+      >
+      <a
+        class="resource-nav d-flex gap-2 p-3"
+        href="{% url 'admin_pv_list' %}"
+        ><i class="fa-solid fa-file-lines"></i>PV publiés</a
+      >
+      <a
+        class="resource-nav {% if resource == 'etudiants' %}active{% endif %} d-flex gap-2 p-3"
+        href="{% url 'admin_resource' 'etudiants' %}"
+        ><i class="fa-solid fa-users"></i>Étudiants</a
+      >
+      <a
+        class="resource-nav {% if resource == 'enseignants' %}active{% endif %} d-flex gap-2 p-3"
+        href="{% url 'admin_resource' 'enseignants' %}"
+        ><i class="fa-solid fa-chalkboard-user"></i>Enseignants</a
+      >
+      <a
+        class="resource-nav {% if resource == 'ue' %}active{% endif %} d-flex gap-2 p-3"
+        href="{% url 'admin_resource' 'ue' %}"
+        ><i class="fa-solid fa-book-open"></i>UE</a
+      >
+    </nav>
+  </aside>
+
+  <div class="flex-grow-1 min-w-0">
+    <header
+      class="resource-topbar d-flex justify-content-between align-items-center px-3 px-lg-5"
+    >
+      <span class="resource-label">Gestion {{ label }}</span>
+      <div class="d-flex align-items-center gap-3">
+        <span class="resource-meta d-none d-sm-inline"
+          >{{ admin_cellule.prenom }} {{ admin_cellule.nom }}</span
+        >
+        <div class="resource-avatar">
+          {{ admin_cellule.prenom|first }}{{ admin_cellule.nom|first }}
+        </div>
+      </div>
+    </header>
+    <main class="resource-main w-100 px-3 px-lg-5 py-5">
+      <header
+        class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3"
+      >
+        <div>
+          <h1 class="resource-title mb-1">{{ label }}</h1>
+          <p class="resource-subtitle mb-0">
+            Filtrez et gérez les enregistrements.
+          </p>
+        </div>
+        <a
+          href="{% url 'admin_resource' resource %}?new=1"
+          class="btn btn-primary resource-button"
+          ><i class="fa-solid fa-plus me-2"></i>Ajouter</a
+        >
+      </header>
+      <section class="resource-table">
+        <div class="resource-header">
+          <form method="get">
+            <div class="row g-2 mb-2">
+              {% if resource == 'ue' %}
+              <div class="col-6 col-md-3">
+                <select name="faculte" class="form-select resource-filter">
+                  <option value="">Faculté</option>
+                  {% for item in facultes %}
+                  <option value="{{ item.id }}">{{ item.code_fac }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <select name="departement" class="form-select resource-filter">
+                  <option value="">Département</option>
+                  {% for item in departements %}
+                  <option value="{{ item.id }}">{{ item.code_dept }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <select name="filiere" class="form-select resource-filter">
+                  <option value="">Filière</option>
+                  {% for item in filieres %}
+                  <option value="{{ item.id }}">{{ item.code_filiere }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <select name="niveau" class="form-select resource-filter">
+                  <option value="">Niveau</option>
+                  {% for value,text in niveaux %}
+                  <option value="{{ value }}">{{ text }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              {% elif resource == 'etudiants' %}
+              <div class="col-6 col-md-4">
+                <select name="filiere" class="form-select resource-filter">
+                  <option value="">Toutes les filières</option>
+                  {% for item in filieres %}
+                  <option value="{{ item.id }}">{{ item.code_filiere }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6 col-md-4">
+                <select name="niveau" class="form-select resource-filter">
+                  <option value="">Tous les niveaux</option>
+                  {% for value,text in niveaux %}
+                  <option value="{{ value }}">{{ text }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              {% else %}
+              <div class="col-12 col-md-6">
+                <select name="fonction" class="form-select resource-filter">
+                  <option value="">Toutes les fonctions</option>
+                  {% for item in fonctions %}
+                  <option value="{{ item }}">{{ item }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              {% endif %}
+            </div>
+            <div class="input-group">
+              <input
+                class="form-control resource-search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Rechercher par matricule, nom ou prénom"
+              /><button
+                class="btn btn-outline-primary resource-button"
+                type="submit"
+              >
+                <i class="fa-solid fa-search"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              {% if resource == 'ue' %}
+              <tr>
+                <th>Code UE</th>
+                <th>Nom</th>
+                <th>Crédits</th>
+                <th>Faculté</th>
+                <th>Département</th>
+                <th>Filière</th>
+                <th>Niveau</th>
+                <th>Semestre</th>
+                <th>Actions</th>
+              </tr>
+              {% elif resource == 'etudiants' %}
+              <tr>
+                <th>Matricule</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Filière</th>
+                <th>Niveau</th>
+                <th>Région</th>
+                <th>Actions</th>
+              </tr>
+              {% else %}
+              <tr>
+                <th>Matricule</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Fonction</th>
+                <th>Actions</th>
+              </tr>
+              {% endif %}
+            </thead>
+            <tbody>
+              {% for item in items %} {% if resource == 'ue' %}
+              <tr>
+                <td><strong>{{ item.code_ue }}</strong></td>
+                <td>{{ item.intitule }}</td>
+                <td>{{ item.credits }}</td>
+                <td>{{ item.filiere.departement.faculte.code_fac }}</td>
+                <td>{{ item.filiere.departement.code_dept }}</td>
+                <td>{{ item.filiere.code_filiere }}</td>
+                <td>{{ item.niveau }}</td>
+                <td>{{ item.semestre }}</td>
+                <td>
+                  {% include 'admin_cellule/admin_resource_actions.html' %}
+                </td>
+              </tr>
+              {% elif resource == 'etudiants' %}
+              <tr>
+                <td><strong>{{ item.matricule }}</strong></td>
+                <td>{{ item.nom }}</td>
+                <td>{{ item.prenom }}</td>
+                <td>{{ item.filiere.code_filiere|default:'-' }}</td>
+                <td>{{ item.niveau }}</td>
+                <td>{{ item.region }}</td>
+                <td>
+                  {% include 'admin_cellule/admin_resource_actions.html' %}
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td><strong>{{ item.matricule }}</strong></td>
+                <td>{{ item.nom }}</td>
+                <td>{{ item.prenom }}</td>
+                <td>{{ item.fonction }}</td>
+                <td>
+                  {% include 'admin_cellule/admin_resource_actions.html' %}
+                </td>
+              </tr>
+              {% endif %} {% empty %}
+              <tr>
+                <td colspan="9" class="text-center py-4 resource-subtitle">
+                  Aucun élément.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

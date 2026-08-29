@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Boîte de réception{% endblock %}
+
+{% block content %}
+<style>
+  .teacher-requests {
+    --teacher-ink: #131b2e;
+    --teacher-muted: #5f6678;
+    --teacher-blue: #004ac6;
+    --teacher-line: #c3c6d7;
+    color: var(--teacher-ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+
+  .teacher-requests-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.92);
+    border-right: 1px solid var(--teacher-line);
+  }
+
+  .teacher-requests-brand {
+    color: var(--teacher-blue);
+    font: 700 1.5rem/2rem "Hanken Grotesk", sans-serif;
+  }
+
+  .teacher-requests-label,
+  .teacher-requests-meta {
+    color: var(--teacher-muted);
+    font: 600 0.7rem/1rem Inter, sans-serif;
+  }
+
+  .teacher-requests-label {
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .teacher-requests-nav {
+    color: var(--teacher-muted);
+    border-radius: 4px;
+    font: 600 0.85rem/1.2rem Inter, sans-serif;
+    text-decoration: none;
+  }
+
+  .teacher-requests-nav:hover,
+  .teacher-requests-nav.active {
+    color: var(--teacher-blue);
+    background: #d0e1fb;
+  }
+
+  .teacher-requests-topbar {
+    min-height: 64px;
+    background: rgba(250, 248, 255, 0.94);
+    border-bottom: 1px solid var(--teacher-line);
+  }
+
+  .teacher-requests-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--teacher-blue);
+    color: #fff;
+    font: 700 0.8rem "Hanken Grotesk", sans-serif;
+  }
+
+  .teacher-requests-main {
+    max-width: 1280px;
+  }
+
+  .teacher-requests-title {
+    font: 700 1.8rem/1.2 "Hanken Grotesk", sans-serif;
+  }
+
+  .teacher-requests-table {
+    overflow: hidden;
+    background: rgba(250, 248, 255, 0.9);
+    border: 1px solid var(--teacher-line);
+    border-radius: 8px;
+  }
+
+  .teacher-requests-table-header {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid var(--teacher-line);
+  }
+
+  .teacher-requests-table th {
+    padding: 0.75rem 1rem;
+    color: var(--teacher-muted);
+    background: #fff;
+    border-bottom-color: var(--teacher-line);
+    font: 600 0.68rem/1rem Inter, sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .teacher-requests-table td {
+    padding: 0.75rem 1rem;
+    border-bottom-color: var(--teacher-line);
+    font: 400 0.82rem/1.3rem Inter, sans-serif;
+    vertical-align: middle;
+  }
+
+  .teacher-requests-table tbody tr {
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .teacher-requests-table tbody tr:hover,
+  .teacher-requests-table tbody tr:focus {
+    background: #d0e1fb;
+    outline: none;
+  }
+
+  @media (max-width: 767px) {
+    .teacher-requests {
+      margin: -1.5rem -0.75rem;
+    }
+    .teacher-requests-sidebar {
+      display: none;
+    }
+    .teacher-requests-main {
+      padding: 1.5rem 1rem !important;
+    }
+    .teacher-requests-table th,
+    .teacher-requests-table td {
+      padding: 0.65rem 0.75rem;
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<div class="teacher-requests d-flex">
+  <aside class="teacher-requests-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="teacher-requests-avatar">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <div class="teacher-requests-brand">EduManage</div>
+        <div class="teacher-requests-label">Academic Portal</div>
+      </div>
+    </div>
+
+    <nav class="d-grid gap-2">
+      <a
+        class="teacher-requests-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'dashboard_enseignant' %}"
+      >
+        <i class="fa-solid fa-table-columns"></i>
+        Dashboard
+      </a>
+      <a
+        class="teacher-requests-nav active d-flex align-items-center gap-2 p-3"
+        href="{% url 'teacher_requetes' %}"
+      >
+        <i class="fa-solid fa-inbox"></i>
+        Boîte de réception
+      </a>
+    </nav>
+
+    <div class="mt-auto pt-4 border-top">
+      <a
+        class="teacher-requests-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'logout' %}"
+      >
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <div class="flex-grow-1 min-w-0">
+    <header
+      class="teacher-requests-topbar d-flex justify-content-between align-items-center px-3 px-lg-5"
+    >
+      <div class="teacher-requests-label">Boîte de réception</div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="teacher-requests-meta d-none d-sm-inline"
+          >{{ enseignant.prenom }} {{ enseignant.nom }}</span
+        >
+        <div class="teacher-requests-avatar">
+          {{ enseignant.prenom|first }}{{ enseignant.nom|first }}
+        </div>
+      </div>
+    </header>
+
+    <main class="teacher-requests-main w-100 px-3 px-lg-5 py-4 py-lg-5">
+      <header class="mb-4 pb-4 border-bottom">
+        <div class="teacher-requests-label mb-2">Espace enseignant</div>
+        <h1 class="teacher-requests-title mb-2">Requêtes des étudiants</h1>
+        <p class="teacher-requests-meta mb-0">
+          Consultez les problèmes signalés sur les notes publiées.
+        </p>
+      </header>
+
+      <section class="teacher-requests-table">
+        <div
+          class="teacher-requests-table-header d-flex justify-content-between align-items-center"
+        >
+          <div>
+            <h2 class="h5 mb-1">Boîte de réception</h2>
+            <p class="teacher-requests-meta mb-0">
+              Cliquez sur une ligne pour examiner la requête.
+            </p>
+          </div>
+          <span class="badge text-bg-primary">{{ requetes|length }}</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Matricule</th>
+                <th>Filière</th>
+                <th>Niveau</th>
+                <th>Évaluation</th>
+                <th>Reçue le</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for requete in requetes %}
+              <tr
+                tabindex="0"
+                role="link"
+                data-url="{% url 'teacher_requete_detail' requete.id %}"
+              >
+                <td><strong>{{ requete.etudiant.matricule }}</strong></td>
+                <td>{{ requete.etudiant.filiere.code_filiere|default:'-' }}</td>
+                <td>{{ requete.etudiant.niveau }}</td>
+                <td>
+                  <span class="badge text-bg-light"
+                    >{{ requete.type_evaluation }}</span
+                  >
+                </td>
+                <td>{{ requete.date_envoi|date:'d/m/Y H:i' }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center teacher-requests-meta py-5">
+                  Aucune requête en attente.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll("[data-url]").forEach(function (row) {
+    row.addEventListener("click", function () {
+      window.location.href = row.dataset.url;
+    });
+    row.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        window.location.href = row.dataset.url;
+      }
+    });
+  });
+</script>
+{% endblock %}

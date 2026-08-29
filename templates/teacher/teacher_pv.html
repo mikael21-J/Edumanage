@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% block title %}PV - {{ ue.code_ue }}{% endblock %}
+{% block content %}
+<style>
+  .teacher-pv-page {
+    --ink: #131b2e;
+    --muted: #5f6678;
+    --blue: #004ac6;
+    --line: #c3c6d7;
+    color: var(--ink);
+    margin: -1.5rem -0.75rem;
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+    min-height: calc(100vh - 180px);
+  }
+  .teacher-pv-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.94);
+    border-right: 1px solid var(--line);
+  }
+  .teacher-pv-brand {
+    color: var(--blue);
+    font: 700 1.5rem/2rem "Hanken Grotesk", sans-serif;
+  }
+  .teacher-pv-label, .teacher-pv-meta {
+    color: var(--muted);
+    font: 600 0.7rem/1rem Inter, sans-serif;
+  }
+  .teacher-pv-label {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+  }
+  .teacher-pv-nav {
+    color: var(--muted);
+    border-radius: 4px;
+    font: 600 0.85rem/1.2rem Inter, sans-serif;
+    text-decoration: none;
+  }
+  .teacher-pv-nav:hover, .teacher-pv-nav.active {
+    color: var(--blue);
+    background: #d0e1fb;
+  }
+  .teacher-pv-topbar {
+    min-height: 64px;
+    background: rgba(250, 248, 255, 0.94);
+    border-bottom: 1px solid var(--line);
+  }
+  .teacher-pv-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font: 700 0.8rem "Hanken Grotesk", sans-serif;
+  }
+  .teacher-pv-main {
+    max-width: 1280px;
+  }
+  .teacher-pv-title {
+    font: 700 clamp(1.65rem, 3vw, 2rem)/1.2 "Hanken Grotesk", sans-serif;
+  }
+  .teacher-pv-card {
+    background: rgba(250, 248, 255, 0.9);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .teacher-pv-card-header {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+  .teacher-pv-card th {
+    padding: 0.9rem 1.25rem;
+    color: var(--muted);
+    background: #fff;
+    font: 600 0.68rem/1rem Inter, sans-serif;
+    text-transform: uppercase;
+  }
+  .teacher-pv-card td {
+    padding: 0.85rem 1.25rem;
+    border-bottom-color: var(--line);
+    font: 400 0.84rem/1.3rem Inter, sans-serif;
+  }
+  .teacher-pv-button {
+    display: inline-flex;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    font: 600 0.75rem/1rem Inter, sans-serif;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    background: #fff;
+    transition: all 0.2s;
+  }
+  .teacher-pv-button:hover {
+    border-color: var(--blue);
+    background: #f2f3ff;
+    color: var(--blue);
+  }
+  .teacher-pv-button.primary {
+    background: var(--blue);
+    color: #fff;
+    border-color: var(--blue);
+  }
+  .teacher-pv-button.primary:hover {
+    background: #003594;
+    border-color: #003594;
+  }
+  .alert-custom {
+    padding: 0.9rem 1.25rem;
+    border-radius: 8px;
+    border: 1px solid;
+    font: 400 0.85rem/1.4 Inter, sans-serif;
+  }
+  .alert-custom.danger {
+    background: #ffe0e0;
+    border-color: #ff6b6b;
+    color: #c92a2a;
+  }
+  .alert-custom.warning {
+    background: #fff3bf;
+    border-color: #ffd43b;
+    color: #b7791f;
+  }
+  .alert-custom.success {
+    background: #d3f9d8;
+    border-color: #51cf66;
+    color: #087f5b;
+  }
+  @media (max-width: 767px) {
+    .teacher-pv-page {
+      margin: -1.5rem -0.75rem;
+    }
+    .teacher-pv-sidebar {
+      display: none;
+    }
+    .teacher-pv-main {
+      padding: 1.25rem 1rem !important;
+    }
+    .teacher-pv-topbar {
+      padding: 0.75rem 1rem !important;
+    }
+    .teacher-pv-card th, .teacher-pv-card td {
+      padding: 0.7rem;
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<div class="teacher-pv-page d-flex">
+  <aside class="teacher-pv-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="teacher-pv-avatar">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <div class="teacher-pv-brand">EduManage</div>
+        <div class="teacher-pv-label">Espace enseignant</div>
+      </div>
+    </div>
+    <nav class="d-grid gap-2">
+      <a class="teacher-pv-nav active d-flex align-items-center gap-2 p-3" href="{% url 'dashboard_enseignant' %}">
+        <i class="fa-solid fa-table-columns"></i>Tableau de bord
+      </a>
+      <a class="teacher-pv-nav d-flex align-items-center gap-2 p-3" href="{% url 'teacher_evaluations' ue.code_ue %}">
+        <i class="fa-solid fa-list-check"></i>Évaluations
+      </a>
+      <a class="teacher-pv-nav d-flex align-items-center gap-2 p-3" href="{% url 'teacher_requetes' %}">
+        <i class="fa-solid fa-inbox"></i>Requêtes
+      </a>
+    </nav>
+  </aside>
+
+  <div class="flex-grow-1 min-w-0">
+    <header class="teacher-pv-topbar d-flex justify-content-between align-items-center px-3 px-lg-5">
+      <div class="teacher-pv-label">Procès-verbal</div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="teacher-pv-meta d-none d-sm-inline">{{ enseignant.prenom }} {{ enseignant.nom }}</span>
+        <div class="teacher-pv-avatar">
+          {{ enseignant.prenom|first }}{{ enseignant.nom|first }}
+        </div>
+      </div>
+    </header>
+
+    <main class="teacher-pv-main w-100 px-3 px-lg-5 py-4 py-lg-5">
+      <a class="teacher-pv-meta" href="{% url 'teacher_evaluations' ue.code_ue %}">
+        <i class="fa-solid fa-arrow-left me-2"></i>Retour aux évaluations
+      </a>
+
+      <header class="my-4">
+        <h1 class="teacher-pv-title mb-2">
+          PV {{ ue.code_ue }} · {{ ue.intitule }}
+        </h1>
+        <p class="teacher-pv-meta mb-0">
+          {{ ue.filiere.nom_filiere }} · {{ ue.niveau }} · {{ ue.semestre }} · Année 2025-2026
+        </p>
+      </header>
+
+      {% if pv and pv.etat == 'REJETE' %}
+      <div class="alert-custom danger mb-4">
+        <strong><i class="fa-solid fa-exclamation-circle me-2"></i>Motif du rejet :</strong> {{ pv.commentaire_rejet }}
+      </div>
+      {% endif %}
+
+      <section class="teacher-pv-card mb-4">
+        <div class="teacher-pv-card-header d-flex justify-content-between align-items-center">
+          <strong>Procès-verbal détaillé</strong>
+          <span class="badge text-bg-{% if pv.etat == 'ENVOYE' %}warning{% elif pv.etat == 'PUBLIE' %}success{% elif pv.etat == 'REJETE' %}danger{% else %}secondary{% endif %}">
+            {% if pv %}{{ pv.get_etat_display }}{% else %}Brouillon{% endif %}
+          </span>
+        </div>
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Matricule</th>
+                <th>Nom et prénom</th>
+                <th class="text-center">CC/{{ ue.pourcentage_cc }}%</th>
+                <th class="text-center">TP/{{ ue.pourcentage_tp }}%</th>
+                <th class="text-center">SN/{{ ue.pourcentage_sn }}%</th>
+                <th class="text-center" style="background: #e7f5ff; font-weight: 700;">Total</th>
+                <th class="text-center" style="background: #f0f9ff; font-weight: 700;">Notation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for student, cc, tp, sn in rows %}
+              {% if pv and pv.etat != 'BROUILLON' %}
+                {% for ligne in pv.lignes.all %}
+                  {% if ligne.etudiant == student %}
+                    <tr>
+                      <td><strong>{{ student.matricule }}</strong></td>
+                      <td>{{ student.nom }} {{ student.prenom }}</td>
+                      <td class="text-center">
+                        <div>{{ cc|default:'-' }}/20</div>
+                        <small style="color: var(--blue); font-weight: 600;">
+                          {% if cc %}→ {{ ligne.get_note_ponderee_cc }}{% else %}—{% endif %}
+                        </small>
+                      </td>
+                      <td class="text-center">
+                        <div>{{ tp|default:'-' }}/20</div>
+                        <small style="color: var(--blue); font-weight: 600;">
+                          {% if tp %}→ {{ ligne.get_note_ponderee_tp }}{% else %}—{% endif %}
+                        </small>
+                      </td>
+                      <td class="text-center">
+                        <div>{{ sn|default:'-' }}/20</div>
+                        <small style="color: var(--blue); font-weight: 600;">
+                          {% if sn %}→ {{ ligne.get_note_ponderee_sn }}{% else %}—{% endif %}
+                        </small>
+                      </td>
+                      <td class="text-center" style="background: #e7f5ff;">
+                        <strong style="font-size: 1.05rem;">
+                          {% if ligne.get_total_pondere %}{{ ligne.get_total_pondere }}/100{% else %}—{% endif %}
+                        </strong>
+                      </td>
+                      <td class="text-center" style="background: #f0f9ff;">
+                        <span class="badge {% if ligne.get_notation == 'CA' %}bg-success{% elif ligne.get_notation == 'CANT' %}bg-warning{% elif ligne.get_notation == 'NC' %}bg-danger{% else %}bg-secondary{% endif %}">
+                          {{ ligne.get_notation }}
+                        </span>
+                      </td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td><strong>{{ student.matricule }}</strong></td>
+                  <td>{{ student.nom }} {{ student.prenom }}</td>
+                  <td class="text-center">{{ cc|default:'-' }}</td>
+                  <td class="text-center">{{ tp|default:'-' }}</td>
+                  <td class="text-center">{{ sn|default:'-' }}</td>
+                  <td class="text-center" style="background: #e7f5ff;">—</td>
+                  <td class="text-center" style="background: #f0f9ff;">—</td>
+                </tr>
+              {% endif %}
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-3">Aucun étudiant inscrit à cette UE.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {% if pv and pv.etat == 'ENVOYE' %}
+      <div class="alert-custom warning">
+        <i class="fa-solid fa-hourglass-end me-2"></i>
+        PV envoyé le <strong>{{ pv.date_envoi|date:'d/m/Y à H:i' }}</strong>. En attente de traitement par la cellule informatique.
+      </div>
+      {% elif pv and pv.etat == 'PUBLIE' %}
+      <div class="alert-custom success">
+        <i class="fa-solid fa-circle-check me-2"></i>
+        PV publié le <strong>{{ pv.date_traitement|date:'d/m/Y à H:i' }}</strong>. Les notes sont maintenant visibles par les étudiants.
+      </div>
+      {% elif not pv or pv.etat == 'BROUILLON' or pv.etat == 'REJETE' %}
+      <form method="post" class="mt-4">
+        {% csrf_token %}
+        <button class="teacher-pv-button primary" name="action" value="send" type="submit" onclick="return confirm('Envoyer ce PV à la cellule informatique ? Les notes SN seront verrouillées.');">
+          <i class="fa-solid fa-paper-plane"></i>Envoyer à la cellule informatique
+        </button>
+      </form>
+      {% endif %}
+    </main>
+  </div>
+</div>
+{% endblock %}

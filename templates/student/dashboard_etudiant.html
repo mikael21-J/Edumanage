@@ -1,0 +1,336 @@
+{% extends 'base.html' %} {% block title %}Tableau de Bord Étudiant{% endblock %} {% block content %}
+<style>
+  .student-dashboard {
+    --dash-ink: #131b2e;
+    --dash-muted: #5f6678;
+    --dash-blue: #004ac6;
+    --dash-surface: #faf8ff;
+    --dash-line: #c3c6d7;
+    color: var(--dash-ink);
+    margin: -1.5rem -0.75rem;
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+    min-height: calc(100vh - 180px);
+  }
+  .student-sidebar {
+    background: rgba(242, 243, 255, 0.9);
+    border-right: 1px solid var(--dash-line);
+  }
+  .student-brand {
+    color: var(--dash-blue);
+    font:
+      700 1.5rem/2rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .student-nav-link {
+    color: var(--dash-muted);
+    border-radius: 4px;
+    font:
+      600 0.85rem/1.2rem Inter,
+      sans-serif;
+  }
+  .student-nav-link.active,
+  .student-nav-link:hover {
+    color: var(--dash-blue);
+    background: #d0e1fb;
+  }
+  .dashboard-main {
+    max-width: 1280px;
+  }
+  .dashboard-title {
+    color: var(--dash-blue);
+    font:
+      700 clamp(1.6rem, 3vw, 2rem)/1.2 "Hanken Grotesk",
+      sans-serif;
+  }
+  .dashboard-subtitle {
+    color: var(--dash-muted);
+    font:
+      400 1rem/1.5 Inter,
+      sans-serif;
+  }
+  .dashboard-stat,
+  .dashboard-profile,
+  .ue-dashboard-card {
+    background: rgba(250, 248, 255, 0.84);
+    border: 1px solid var(--dash-line);
+    border-radius: 8px;
+  }
+  .dashboard-stat {
+    padding: 1rem 1.25rem;
+  }
+  .dashboard-stat-value {
+    color: var(--dash-blue);
+    font:
+      700 1.55rem/1.2 "Hanken Grotesk",
+      sans-serif;
+  }
+  .dashboard-stat-label {
+    color: var(--dash-muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .dashboard-profile {
+    padding: 1.25rem;
+  }
+  .profile-avatar {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--dash-blue);
+    color: #fff;
+    font:
+      700 1rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .profile-name {
+    font:
+      600 1rem/1.25rem "Hanken Grotesk",
+      sans-serif;
+  }
+  .profile-data {
+    color: var(--dash-muted);
+    font:
+      400 0.8rem/1.35rem Inter,
+      sans-serif;
+  }
+  .dashboard-search {
+    min-height: 42px;
+    padding-left: 2.5rem;
+    border: 1px solid var(--dash-line);
+    border-radius: 4px;
+    background: var(--dash-surface);
+  }
+  .dashboard-search:focus {
+    border-color: var(--dash-blue);
+    box-shadow: 0 0 0 2px rgba(0, 74, 198, 0.14);
+  }
+  .ue-dashboard-card {
+    position: relative;
+    display: flex;
+    min-height: 220px;
+    flex-direction: column;
+    padding: 1.25rem;
+    color: var(--dash-ink);
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+  .ue-dashboard-card:hover {
+    border-color: var(--dash-blue);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    color: var(--dash-ink);
+    transform: translateY(-2px);
+  }
+  .ue-code {
+    color: var(--dash-blue);
+    font:
+      500 0.75rem/1rem "JetBrains Mono",
+      monospace;
+  }
+  .ue-dashboard-card h3 {
+    margin: 0.7rem 0 0.35rem;
+    font:
+      600 1.2rem/1.35 "Hanken Grotesk",
+      sans-serif;
+  }
+  .ue-meta,
+  .ue-description {
+    color: var(--dash-muted);
+    font:
+      400 0.8rem/1.35rem Inter,
+      sans-serif;
+  }
+  .ue-description {
+    flex: 1;
+  }
+  .ue-footer {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--dash-line);
+  }
+  .ue-arrow {
+    color: var(--dash-blue);
+  }
+  @media (max-width: 767px) {
+    .student-dashboard {
+      margin: -1.5rem -0.75rem;
+    }
+    .student-sidebar {
+      display: none;
+    }
+    .dashboard-main {
+      padding: 1.5rem 1rem !important;
+    }
+  }
+</style>
+
+<div class="student-dashboard d-flex">
+  <aside
+    class="student-sidebar d-none d-md-flex flex-column p-4"
+    style="width: 240px; min-height: 100%"
+  >
+    <div class="student-brand mb-5">EduManage</div>
+    <nav class="d-grid gap-2">
+      <a
+        class="student-nav-link active d-flex align-items-center gap-2 p-3 text-decoration-none"
+        href="{% url 'dashboard_etudiant' %}"
+        ><i class="fa-solid fa-table-columns"></i> Tableau de bord</a
+      >
+      <a
+        class="student-nav-link d-flex align-items-center gap-2 p-3 text-decoration-none"
+        href="#ues"
+        ><i class="fa-solid fa-book-open"></i> Mes UE</a
+      >
+      <a
+        class="student-nav-link d-flex align-items-center gap-2 p-3 text-decoration-none"
+        href="{% url 'student_requetes' %}"
+        ><i class="fa-solid fa-inbox"></i> Mes requêtes</a
+      >
+    </nav>
+    <div class="mt-auto pt-4">
+      <a
+        class="student-nav-link d-flex align-items-center gap-2 p-3 text-decoration-none"
+        href="{% url 'logout' %}"
+        ><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</a
+      >
+    </div>
+  </aside>
+
+  <main class="dashboard-main flex-grow-1 w-100 px-3 px-lg-5 py-4 py-lg-5">
+    <header
+      class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4 pb-4 border-bottom"
+      id="profil"
+    >
+      <div>
+        <p class="dashboard-stat-label mb-2">Espace étudiant</p>
+        <h1 class="dashboard-title mb-2">Bonjour, {{ etudiant.prenom }}.</h1>
+        <p class="dashboard-subtitle mb-0">
+          Retrouvez vos unités d’enseignement et vos résultats.
+        </p>
+      </div>
+      <div class="dashboard-profile d-flex align-items-center gap-3">
+        <div class="profile-avatar">
+          {{ etudiant.prenom|first }}{{ etudiant.nom|first }}
+        </div>
+        <div>
+          <div class="profile-name">
+            {{ etudiant.prenom }} {{ etudiant.nom }}
+          </div>
+          <div class="profile-data">{{ etudiant.matricule }}</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="row g-3 mb-5" aria-label="Résumé académique">
+      <div class="col-6 col-lg-3">
+        <div class="dashboard-stat h-100">
+          <div class="dashboard-stat-value">{{ inscriptions|length }}</div>
+          <div class="dashboard-stat-label mt-2">UE inscrites</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="dashboard-stat h-100">
+          <div class="dashboard-stat-value">{{ etudiant.niveau }}</div>
+          <div class="dashboard-stat-label mt-2">Niveau actuel</div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="dashboard-stat h-100">
+          <div class="dashboard-stat-value">
+            {{ etudiant.filiere.code_filiere }}
+          </div>
+          <div class="dashboard-stat-label mt-2">
+            {{ etudiant.filiere.nom_filiere }}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ues">
+      <div
+        class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"
+      >
+        <div>
+          <h2
+            class="h4 mb-1"
+            style="font-family: &quot;Hanken Grotesk&quot;, sans-serif"
+          >
+            Mes unités d’enseignement
+          </h2>
+          <p class="dashboard-subtitle mb-0">
+            Sélectionnez une UE pour consulter vos évaluations.
+          </p>
+        </div>
+        <div class="position-relative" style="width: min(100%, 300px)">
+          <i
+            class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
+          ></i
+          ><input
+            id="ue-search"
+            class="form-control dashboard-search"
+            type="search"
+            placeholder="Rechercher une UE..."
+            aria-label="Rechercher une UE"
+          />
+        </div>
+      </div>
+      <div class="row g-3" id="ue-list">
+        {% for insc in inscriptions %}
+        <div class="col-12 col-md-6 col-xl-4 ue-item">
+          <a
+            class="ue-dashboard-card h-100"
+            href="{% url 'student_ue_detail' insc.ue.code_ue %}"
+            data-search="{{ insc.ue.code_ue }} {{ insc.ue.intitule }} {{ insc.ue.semestre }}"
+            ><span class="ue-code">{{ insc.ue.code_ue }}</span>
+            <h3>{{ insc.ue.intitule }}</h3>
+            <p class="ue-meta mb-3">
+              {{ insc.ue.credits }} crédits · {{ insc.ue.semestre }}
+            </p>
+            <p class="ue-description mb-3">
+              Consultez les notes publiées et le détail de vos évaluations.
+            </p>
+            <div
+              class="ue-footer d-flex justify-content-between align-items-center"
+            >
+              <span class="ue-meta"
+                ><i class="fa-solid fa-circle-check text-success me-1"></i>
+                Inscrite</span
+              ><i class="ue-arrow fa-solid fa-arrow-right"></i></div
+          ></a>
+        </div>
+        {% empty %}
+        <p class="dashboard-subtitle">Aucune UE inscrite.</p>
+        {% endfor %}
+      </div>
+      <p id="ue-empty-search" class="dashboard-subtitle d-none mt-4">
+        Aucune UE ne correspond à votre recherche.
+      </p>
+    </section>
+  </main>
+</div>
+
+<script>
+  document.getElementById("ue-search").addEventListener("input", function () {
+    const query = this.value.toLowerCase().trim();
+    let visible = 0;
+    document.querySelectorAll(".ue-item").forEach(function (item) {
+      const matches = item
+        .querySelector("[data-search]")
+        .dataset.search.toLowerCase()
+        .includes(query);
+      item.classList.toggle("d-none", !matches);
+      if (matches) visible++;
+    });
+    document
+      .getElementById("ue-empty-search")
+      .classList.toggle("d-none", visible !== 0);
+  });
+</script>
+{% endblock %}

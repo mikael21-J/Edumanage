@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from accounts.models import Etudiant, Enseignant
+from accounts.models import AdminCellule, Etudiant, Enseignant
 from academic.models import UE
 
 
@@ -71,3 +71,129 @@ class Note(models.Model):
     def __str__(self):
         statut = f"{self.valeur_note}/20" if self.est_publie else "NON PUBLIE (NONE)"
         return f"{self.etudiant.matricule} | {self.ue.code_ue} | {self.type_evaluation} : {statut}"
+
+
+class EtatPV(models.TextChoices):
+    BROUILLON = 'BROUILLON', 'Brouillon'
+    ENVOYE = 'ENVOYE', 'Envoyé à la cellule'
+    REJETE = 'REJETE', 'Rejeté'
+    PUBLIE = 'PUBLIE', 'Publié'
+
+
+class PV(models.Model):
+    ue = models.ForeignKey(UE, on_delete=models.PROTECT, related_name='pvs')
+    enseignant = models.ForeignKey(Enseignant, on_delete=models.PROTECT, related_name='pvs')
+    annee_academique = models.CharField(max_length=20, default='2025-2026')
+    etat = models.CharField(max_length=10, choices=EtatPV.choices, default=EtatPV.BROUILLON)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_envoi = models.DateTimeField(null=True, blank=True)
+    date_traitement = models.DateTimeField(null=True, blank=True)
+    admin_traitement = models.ForeignKey(
+        AdminCellule, null=True, blank=True, on_delete=models.PROTECT, related_name='pvs_traites'
+    )
+    commentaire_rejet = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = 'Procès-verbal'
+        verbose_name_plural = 'Procès-verbaux'
+        constraints = [
+            models.UniqueConstraint(fields=('ue', 'annee_academique'), name='unique_pv_ue_annee')
+        ]
+        ordering = ('-date_envoi', '-date_creation')
+
+    def __str__(self):
+        return f"PV {self.ue.code_ue} - {self.annee_academique} ({self.etat})"
+
+
+class PVNote(models.Model):
+    pv = models.ForeignKey(PV, on_delete=models.CASCADE, related_name='lignes')
+    etudiant = models.ForeignKey(Etudiant, on_delete=models.PROTECT, related_name='lignes_pv')
+    cc = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    tp = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    sn = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Ligne de PV'
+        verbose_name_plural = 'Lignes de PV'
+        constraints = [
+            models.UniqueConstraint(fields=('pv', 'etudiant'), name='unique_pv_etudiant')
+        ]
+
+    def get_note_ponderee_cc(self):
+        """Calcule la note pondérée pour CC"""
+        if self.cc is None:
+            return None
+        return round(float(self.cc) * float(self.pv.ue.pourcentage_cc) / 20, 2)
+
+    def get_note_ponderee_tp(self):
+        """Calcule la note pondérée pour TP"""
+        if self.tp is None:
+            return None
+        return round(float(self.tp) * float(self.pv.ue.pourcentage_tp) / 20, 2)
+
+    def get_note_ponderee_sn(self):
+        """Calcule la note pondérée pour SN"""
+        if self.sn is None:
+            return None
+        return round(float(self.sn) * float(self.pv.ue.pourcentage_sn) / 20, 2)
+
+    def get_total_pondere(self):
+        """Calcule le total des notes pondérées"""
+        notes = [
+            self.get_note_ponderee_cc(),
+            self.get_note_ponderee_tp(),
+            self.get_note_ponderee_sn(),
+        ]
+        valid_notes = [n for n in notes if n is not None]
+        return round(sum(valid_notes), 2) if valid_notes else None
+
+    def get_notation(self):
+        """Retourne la notation selon le total pondéré"""
+        total = self.get_total_pondere()
+        if total is None:
+            return "—"
+        if total < 35:
+            return "NC"
+        elif total < 50:
+            return "CANT"
+        else:
+            return "CA"
+
+    def __str__(self):
+        return f"{self.pv.ue.code_ue} - {self.etudiant.matricule}"
+
+
+class MotifRequete(models.TextChoices):
+    ABSENCE = 'ABSENCE', 'Absence de note'
+    NON_MERITEE = 'NON_MERITEE', 'Note non méritée'
+    ERREUR = 'ERREUR', 'Erreur de note'
+
+
+class EtatRequete(models.TextChoices):
+    ENVOYEE = 'ENVOYEE', 'Envoyée'
+    VALIDEE = 'VALIDEE', 'Validée'
+
+
+class Requete(models.Model):
+    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='requetes')
+    enseignant = models.ForeignKey(Enseignant, on_delete=models.PROTECT, related_name='requetes_recues')
+    ue = models.ForeignKey(UE, on_delete=models.PROTECT, related_name='requetes')
+    type_evaluation = models.CharField(max_length=3, choices=TypeEvaluation.choices)
+    motif = models.CharField(max_length=20, choices=MotifRequete.choices)
+    description = models.TextField()
+    etat = models.CharField(max_length=10, choices=EtatRequete.choices, default=EtatRequete.ENVOYEE)
+    date_envoi = models.DateTimeField(auto_now_add=True)
+    date_validation = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Requête étudiant'
+        verbose_name_plural = 'Requêtes étudiants'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('etudiant', 'ue', 'type_evaluation'), name='unique_requete_note_etudiant'
+            )
+        ]
+        ordering = ('-date_envoi',)
+
+    def __str__(self):
+        return f"{self.etudiant.matricule} - {self.ue.code_ue} - {self.type_evaluation}"

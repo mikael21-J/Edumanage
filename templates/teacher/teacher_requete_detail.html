@@ -1,0 +1,259 @@
+{% extends 'base.html' %} {% block title %}Détail de la requête{% endblock %} {% block content %}
+<style>
+  .request-detail {
+    --detail-ink: #131b2e;
+    --detail-muted: #5f6678;
+    --detail-blue: #004ac6;
+    --detail-line: #c3c6d7;
+    color: var(--detail-ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+
+  .request-detail-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.92);
+    border-right: 1px solid var(--detail-line);
+  }
+
+  .request-detail-brand {
+    color: var(--detail-blue);
+    font:
+      700 1.5rem/2rem "Hanken Grotesk",
+      sans-serif;
+  }
+
+  .request-detail-label,
+  .request-detail-meta {
+    color: var(--detail-muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+  }
+
+  .request-detail-label {
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .request-detail-nav {
+    color: var(--detail-muted);
+    border-radius: 4px;
+    font:
+      600 0.85rem/1.2rem Inter,
+      sans-serif;
+    text-decoration: none;
+  }
+
+  .request-detail-nav:hover,
+  .request-detail-nav.active {
+    color: var(--detail-blue);
+    background: #d0e1fb;
+  }
+
+  .request-detail-topbar {
+    min-height: 64px;
+    background: rgba(250, 248, 255, 0.94);
+    border-bottom: 1px solid var(--detail-line);
+  }
+
+  .request-detail-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--detail-blue);
+    color: #fff;
+    font:
+      700 0.8rem "Hanken Grotesk",
+      sans-serif;
+  }
+
+  .request-detail-main {
+    max-width: 1000px;
+  }
+
+  .request-detail-title {
+    font:
+      700 1.7rem/1.2 "Hanken Grotesk",
+      sans-serif;
+  }
+
+  .request-detail-card {
+    width: min(100%, 720px);
+    padding: 1.35rem;
+    background: rgba(250, 248, 255, 0.94);
+    border: 1px solid var(--detail-line);
+    border-radius: 8px;
+  }
+
+  .request-detail-card dt {
+    color: var(--detail-muted);
+    font:
+      600 0.68rem/1rem Inter,
+      sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .request-detail-card dd {
+    margin-bottom: 0.85rem;
+    font:
+      500 0.85rem/1.3rem Inter,
+      sans-serif;
+  }
+
+  .request-description {
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid var(--detail-line);
+    border-radius: 4px;
+    font:
+      400 0.85rem/1.5rem Inter,
+      sans-serif;
+  }
+
+  @media (max-width: 767px) {
+    .request-detail {
+      margin: -1.5rem -0.75rem;
+    }
+    .request-detail-sidebar {
+      display: none;
+    }
+    .request-detail-main {
+      padding: 1.5rem 1rem !important;
+    }
+    .request-detail-card {
+      width: 100%;
+      padding: 1rem;
+    }
+  }
+</style>
+
+<div class="request-detail d-flex">
+  <aside class="request-detail-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="request-detail-avatar">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <div class="request-detail-brand">EduManage</div>
+        <div class="request-detail-label">Academic Portal</div>
+      </div>
+    </div>
+
+    <nav class="d-grid gap-2">
+      <a
+        class="request-detail-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'dashboard_enseignant' %}"
+      >
+        <i class="fa-solid fa-table-columns"></i>
+        Dashboard
+      </a>
+      <a
+        class="request-detail-nav active d-flex align-items-center gap-2 p-3"
+        href="{% url 'teacher_requetes' %}"
+      >
+        <i class="fa-solid fa-inbox"></i>
+        Boîte de réception
+      </a>
+    </nav>
+
+    <div class="mt-auto pt-4 border-top">
+      <a
+        class="request-detail-nav d-flex align-items-center gap-2 p-3"
+        href="{% url 'logout' %}"
+      >
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <div class="flex-grow-1 min-w-0">
+    <header
+      class="request-detail-topbar d-flex justify-content-between align-items-center px-3 px-lg-5"
+    >
+      <div class="request-detail-label">Détail de la requête</div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="request-detail-meta d-none d-sm-inline"
+          >{{ enseignant.prenom }} {{ enseignant.nom }}</span
+        >
+        <div class="request-detail-avatar">
+          {{ enseignant.prenom|first }}{{ enseignant.nom|first }}
+        </div>
+      </div>
+    </header>
+
+    <main class="request-detail-main w-100 px-3 px-lg-5 py-4 py-lg-5">
+      <header class="mb-4">
+        <a
+          class="request-detail-meta text-decoration-none"
+          href="{% url 'teacher_requetes' %}"
+        >
+          <i class="fa-solid fa-arrow-left me-2"></i>
+          Retour à la boîte de réception
+        </a>
+        <div class="request-detail-label mt-4 mb-2">
+          {{ requete.ue.code_ue }} · {{ requete.type_evaluation }}
+        </div>
+        <h1 class="request-detail-title mb-2">
+          Requête de {{ requete.etudiant.prenom }} {{ requete.etudiant.nom }}
+        </h1>
+        <p class="request-detail-meta mb-0">
+          Reçue le {{ requete.date_envoi|date:'d/m/Y à H:i' }}
+        </p>
+      </header>
+
+      <section class="request-detail-card">
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Matricule</dt>
+          <dd class="col-sm-8">{{ requete.etudiant.matricule }}</dd>
+          <dt class="col-sm-4">Nom</dt>
+          <dd class="col-sm-8">{{ requete.etudiant.nom }}</dd>
+          <dt class="col-sm-4">Prénom</dt>
+          <dd class="col-sm-8">{{ requete.etudiant.prenom }}</dd>
+          <dt class="col-sm-4">Département</dt>
+          <dd class="col-sm-8">
+            {{ requete.etudiant.filiere.departement.nom_dept|default:'-' }}
+          </dd>
+          <dt class="col-sm-4">Filière</dt>
+          <dd class="col-sm-8">
+            {{ requete.etudiant.filiere.nom_filiere|default:'-' }}
+          </dd>
+          <dt class="col-sm-4">Niveau</dt>
+          <dd class="col-sm-8">{{ requete.etudiant.niveau }}</dd>
+          <dt class="col-sm-4">Type de requête</dt>
+          <dd class="col-sm-8">{{ requete.get_motif_display }}</dd>
+          <dt class="col-sm-4">Évaluation</dt>
+          <dd class="col-sm-8">{{ requete.type_evaluation }}</dd>
+        </dl>
+
+        <div class="border-top pt-3 mt-2">
+          <div class="request-detail-label mb-2">Description du problème</div>
+          <div class="request-description">{{ requete.description }}</div>
+        </div>
+
+        <form method="post" class="text-end mt-4">
+          {% csrf_token %}
+          <button
+            class="btn btn-sm btn-primary"
+            name="action"
+            value="validate"
+            type="submit"
+            onclick="
+              return confirm('Confirmer la correction de cette requête ?');
+            "
+          >
+            <i class="fa-solid fa-check me-2"></i>
+            Corriger et valider
+          </button>
+        </form>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
