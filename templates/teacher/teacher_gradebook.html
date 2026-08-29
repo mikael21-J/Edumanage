@@ -263,6 +263,9 @@
         <span>{{ label }}</span>
       </a>
       {% endfor %}
+      <a class="gradebook-nav d-flex align-items-center gap-2 p-3" href="{% url 'teacher_pv' ue.code_ue %}">
+        <i class="fa-solid fa-file-lines"></i> Procès-verbal
+      </a>
     </nav>
     <div class="mt-auto pt-4 border-top">
       <a class="gradebook-nav d-flex align-items-center gap-2 p-3" href="{% url 'logout' %}">
@@ -325,8 +328,8 @@
       </div>
       <div class="col-12 col-lg-4">
         <div class="gradebook-stat h-100">
-          <div class="gradebook-stat-value">/ 20</div>
-          <div class="gradebook-stat-label mt-2">Barème</div>
+          <div class="gradebook-stat-value">{% if evaluation_type == 'CC' %}{{ ue.pourcentage_cc }}{% elif evaluation_type == 'TP' %}{{ ue.pourcentage_tp }}{% elif evaluation_type == 'SN' %}{{ ue.pourcentage_sn }}{% else %}—{% endif %}%</div>
+          <div class="gradebook-stat-label mt-2">% note finale</div>
         </div>
       </div>
     </section>
@@ -347,7 +350,7 @@
                 <th>#</th>
                 <th>Matricule</th>
                 <th>Nom et prénom</th>
-                <th class="text-end">Note / 20</th>
+                <th class="text-end">Note / 20 ({% if evaluation_type == 'CC' %}{{ ue.pourcentage_cc }}{% elif evaluation_type == 'TP' %}{{ ue.pourcentage_tp }}{% elif evaluation_type == 'SN' %}{{ ue.pourcentage_sn }}{% endif %}%)</th>
                 <th class="text-center">Statut</th>
               </tr>
             </thead>
