@@ -1,5 +1,6 @@
-{% extends 'base.html' %} {% block title %}{{ inscription.ue.code_ue }} - Mes
-notes{% endblock %} {% block content %}
+{% extends 'base.html' %}
+{% block title %}{{ inscription.ue.code_ue }} - Mes notes{% endblock %}
+{% block content %}
 <style>
   .grade-page {
     --grade-ink: #131b2e;
@@ -285,8 +286,7 @@ notes{% endblock %} {% block content %}
         </div>
         <h1>{{ inscription.ue.intitule }}</h1>
         <p class="mb-0">
-          {{ etudiant.filiere.nom_filiere }} · {{ etudiant.niveau }} · {{
-          inscription.ue.credits }} crédits
+          {{ etudiant.filiere.nom_filiere }} · {{ etudiant.niveau }} · {{ inscription.ue.credits }} crédits
         </p>
       </div>
       <div class="align-self-md-end text-md-end">
