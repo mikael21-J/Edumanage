@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Impression {{ evaluation_label }} - {{ ue.code_ue }}{% endblock %}
+
+{% block content %}
+<style>
+  .impress-page {
+    --ink: #131b2e;
+    --muted: #5f6678;
+    --blue: #004ac6;
+    --line: #c3c6d7;
+    color: var(--ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+  .impress-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.94);
+    border-right: 1px solid var(--line);
+  }
+  .impress-brand {
+    color: var(--blue);
+    font: 700 1.5rem/2rem "Hanken Grotesk", sans-serif;
+  }
+  .impress-label,
+  .impress-meta {
+    color: var(--muted);
+    font: 600 0.7rem/1rem Inter, sans-serif;
+  }
+  .impress-label {
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .impress-nav {
+    color: var(--muted);
+    border-radius: 4px;
+    font: 600 0.85rem/1.2rem Inter, sans-serif;
+    text-decoration: none;
+  }
+  .impress-nav:hover,
+  .impress-nav.active {
+    color: var(--blue);
+    background: #d0e1fb;
+  }
+  .impress-topbar {
+    min-height: 64px;
+    background: rgba(250, 248, 255, 0.94);
+    border-bottom: 1px solid var(--line);
+  }
+  .impress-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font: 700 0.8rem "Hanken Grotesk", sans-serif;
+  }
+  .impress-main {
+    max-width: 1240px;
+  }
+  .impress-title {
+    font: 700 clamp(1.7rem, 2.5vw, 2.2rem)/1.2 "Hanken Grotesk", sans-serif;
+  }
+  .impress-header-card,
+  .impress-table {
+    background: rgba(250, 248, 255, 0.94);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .impress-header-card {
+    padding: 1.5rem;
+  }
+  .impress-table thead th {
+    background: #fff;
+    color: var(--muted);
+    font: 600 0.68rem/1rem Inter, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.9rem 1rem;
+  }
+  .impress-table td {
+    padding: 0.8rem 1rem;
+    border-bottom-color: var(--line);
+    font: 400 0.85rem/1.35rem Inter, sans-serif;
+  }
+  .impress-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font: 600 0.76rem/1rem Inter, sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .impress-btn.primary {
+    background: var(--blue);
+    border: 1px solid var(--blue);
+    color: #fff;
+  }
+  .impress-btn.secondary {
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+  @media print {
+    .impress-sidebar,
+    .impress-topbar,
+    .impress-actions,
+    .impress-btn,
+    .impress-nav {
+      display: none !important;
+    }
+    .impress-page {
+      margin: 0;
+      background: #fff;
+    }
+    .impress-main {
+      max-width: none !important;
+      padding: 0 !important;
+    }
+    .impress-header-card,
+    .impress-table {
+      border-color: #999;
+      box-shadow: none;
+    }
+  }
+  @media (max-width: 767px) {
+    .impress-page { margin: -1.5rem -0.75rem; }
+    .impress-sidebar { display: none; }
+    .impress-main { padding: 1.25rem 1rem !important; }
+    .impress-topbar { padding: 0.75rem 1rem !important; }
+  }
+</style>
+
+<div class="impress-page d-flex">
+  <aside class="impress-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="impress-avatar"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div>
+        <div class="impress-brand">EduManage</div>
+        <div class="impress-label">Academic Portal</div>
+      </div>
+    </div>
+
+    <nav class="d-grid gap-2">
+      <a class="impress-nav d-flex align-items-center gap-2 p-3" href="{% url 'dashboard_enseignant' %}">
+        <i class="fa-solid fa-table-columns"></i> Tableau de bord
+      </a>
+      <a class="impress-nav d-flex align-items-center gap-2 p-3" href="{% url 'teacher_requetes' %}">
+        <i class="fa-solid fa-inbox"></i> Boîte de réception
+      </a>
+      <a class="impress-nav d-flex align-items-center gap-2 p-3" href="{% url 'teacher_evaluations' ue.code_ue %}">
+        <i class="fa-solid fa-list-check"></i> Types d’évaluation
+      </a>
+      {% for code, label in evaluation_choices %}
+      <a class="impress-nav d-flex align-items-center gap-2 p-3 {% if code == evaluation_type %}active{% endif %}" href="{% url 'teacher_gradebook' ue.code_ue code %}">
+        <i class="fa-solid {% if code == 'CC' %}fa-pen-to-square{% elif code == 'TP' %}fa-flask{% elif code == 'SN' %}fa-file-signature{% else %}fa-rotate-left{% endif %}"></i> {{ label }}
+      </a>
+      {% endfor %}
+    </nav>
+
+    <div class="mt-auto pt-4 border-top">
+      <a class="impress-nav d-flex align-items-center gap-2 p-3" href="{% url 'logout' %}">
+        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <div class="flex-grow-1 min-w-0">
+    <header class="impress-topbar d-flex justify-content-between align-items-center px-3 px-lg-5">
+      <div class="impress-label">Impression de document</div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="impress-meta d-none d-sm-inline">{{ enseignant.prenom }} {{ enseignant.nom }}</span>
+        <div class="impress-avatar">{{ enseignant.prenom|first }}{{ enseignant.nom|first }}</div>
+      </div>
+    </header>
+
+    <main class="impress-main w-100 px-3 px-lg-5 py-4 py-lg-5">
+      <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-4 impress-actions">
+        <a class="impress-btn secondary" href="{% url 'teacher_gradebook' ue.code_ue evaluation_type %}">
+          <i class="fa-solid fa-arrow-left me-2"></i>Retour
+        </a>
+        <button class="impress-btn primary" type="button" onclick="window.print()">
+          <i class="fa-solid fa-print me-2"></i>Imprimer
+        </button>
+      </div>
+
+      <section class="impress-header-card mb-4">
+        <div class="text-center mb-3">
+          <h1 class="impress-title mb-1">Université de Yaoundé I</h1>
+          <div class="impress-meta">Faculté : {{ ue.filiere.departement.faculte.nom_fac }}</div>
+          <div class="impress-meta">Département : {{ ue.filiere.departement.nom_dept }}</div>
+          <div class="impress-meta">Filière : {{ ue.filiere.nom_filiere }}</div>
+        </div>
+        <div class="d-flex justify-content-between flex-wrap gap-3 align-items-center border-top pt-3 mt-3">
+          <div>
+            <div class="impress-label mb-1">UE</div>
+            <div class="fw-bold">{{ ue.code_ue }} - {{ ue.intitule }}</div>
+          </div>
+          <div>
+            <div class="impress-label mb-1">Niveau</div>
+            <div class="fw-bold">{{ ue.niveau }}</div>
+          </div>
+          <div>
+            <div class="impress-label mb-1">Type</div>
+            <div class="fw-bold">{{ evaluation_label }} /20</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="impress-table table-responsive overflow-hidden">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Matricule</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th class="text-end">Note {{ evaluation_label }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student, note in rows %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><strong>{{ student.matricule }}</strong></td>
+              <td>{{ student.nom }}</td>
+              <td>{{ student.prenom }}</td>
+              <td class="text-end">{% if note %}{{ note.valeur_note }}{% else %}-{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-4 impress-meta">Aucune note disponible pour ce type d’évaluation.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

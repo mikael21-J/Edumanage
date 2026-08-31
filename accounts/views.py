@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from academic.models import Departement, Faculte, Filiere, UE, EnseignantUE
 from .models import AdminCellule, Etudiant, Enseignant
 from pedagogy.models import EtatPV, EtatRequete, InscriptionUE, MotifRequete, Note, PV, PVNote, Requete, TypeEvaluation
-from .forms import EtudiantForm, EnseignantForm, RequeteForm, UEForm
+from .forms import EtudiantForm, EnseignantForm, RequeteForm, UEForm, EnseignantProfileForm
 
 def current_person(request, role=None):
     session_role = request.session.get('auth_role')
@@ -171,12 +171,38 @@ def select_ues(request):
 
 
 def select_teacher_ues(request):
-    if not current_person(request, 'enseignant'):
+    admin_session = current_person(request, 'admin_cellule')
+    teacher_session = current_person(request, 'enseignant')
+    teacher_matricule = request.GET.get('teacher_matricule') or request.POST.get('teacher_matricule')
+
+    if not admin_session and not teacher_session and not request.session.get('registration_matricule'):
         return redirect('login')
-    enseignant = current_person(request, 'enseignant')
+
+    if teacher_matricule:
+        if not admin_session:
+            messages.error(request, 'Seul l’administrateur cellule peut modifier les UE d’un enseignant.')
+            return redirect('dashboard_enseignant')
+        enseignant = get_object_or_404(Enseignant, matricule=teacher_matricule)
+    elif request.session.get('registration_matricule'):
+        enseignant = get_object_or_404(Enseignant, matricule=request.session.get('registration_matricule'))
+    elif teacher_session:
+        enseignant = teacher_session
+    else:
+        enseignant = admin_session and get_object_or_404(Enseignant, matricule=teacher_matricule) if teacher_matricule else None
+
+    if enseignant is None:
+        return redirect('dashboard_enseignant')
+
     ues = UE.objects.all().select_related('filiere').order_by('filiere__code_filiere', 'niveau', 'code_ue')
     current_codes = set(EnseignantUE.objects.filter(enseignant=enseignant).values_list('ue_id', flat=True))
+    is_admin_edit = bool(admin_session and teacher_matricule)
+
     if request.method == 'POST':
+        if not (admin_session or request.session.get('registration_matricule')) and not teacher_session:
+            return redirect('login')
+        if not admin_session and teacher_session and not request.session.get('registration_matricule'):
+            messages.error(request, 'Vous ne pouvez pas modifier vos UE depuis cette page. Consultez votre profil.')
+            return redirect('teacher_profile')
         selected_codes = set(request.POST.getlist('ues'))
         valid_codes = set(ues.values_list('code_ue', flat=True))
         if not selected_codes or not selected_codes.issubset(valid_codes):
@@ -187,13 +213,18 @@ def select_teacher_ues(request):
                 EnseignantUE.objects.bulk_create([
                     EnseignantUE(enseignant=enseignant, ue_id=code) for code in selected_codes
                 ], ignore_conflicts=True)
-            request.session.pop('registration_matricule', None)
-            request.session.pop('user_role', None)
+            if request.session.get('registration_matricule'):
+                request.session.pop('registration_matricule', None)
+                request.session.pop('user_role', None)
+            if admin_session:
+                return redirect('admin_resource', resource='enseignants', object_id=enseignant.matricule)
             return redirect('dashboard_enseignant')
     return render(request, 'teacher/select_teacher_ues.html', {
         'ues': ues, 'enseignant': enseignant, 'current_codes': current_codes,
         'filiere_choices': ues.values('filiere__code_filiere', 'filiere__nom_filiere').distinct().order_by('filiere__code_filiere'),
         'niveau_choices': ues.values_list('niveau', flat=True).distinct().order_by('niveau'),
+        'is_admin_edit': is_admin_edit,
+        'admin_cellule': admin_session,
     })
 
 
@@ -297,6 +328,29 @@ def teacher_requete_detail(request, requete_id):
     return render(request, 'teacher/teacher_requete_detail.html', {'enseignant': enseignant, 'requete': requete})
 
 
+def teacher_profile(request):
+    if not current_person(request, 'enseignant'):
+        return redirect('login')
+
+    enseignant = current_person(request, 'enseignant')
+    habilitations = EnseignantUE.objects.filter(enseignant=enseignant).select_related('ue', 'ue__filiere__departement__faculte').order_by('ue__filiere__code_filiere', 'ue__code_ue')
+
+    if request.method == 'POST':
+        form = EnseignantProfileForm(request.POST, instance=enseignant)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Vos informations ont bien été mises à jour.')
+            return redirect('teacher_profile')
+    else:
+        form = EnseignantProfileForm(instance=enseignant)
+
+    return render(request, 'teacher/teacher_profile.html', {
+        'enseignant': enseignant,
+        'form': form,
+        'habilitations': habilitations,
+    })
+
+
 def dashboard_enseignant(request):
     if not current_person(request, 'enseignant'):
         return redirect('login')
@@ -373,6 +427,34 @@ def teacher_gradebook(request, code_ue, evaluation_type):
         'evaluation_type': evaluation_type,
         'evaluation_choices': TypeEvaluation.choices,
         'evaluation_label': dict(TypeEvaluation.choices).get(evaluation_type, evaluation_type),
+    })
+
+
+def teacher_impress(request, code_ue, evaluation_type):
+    if not current_person(request, 'enseignant'):
+        return redirect('login')
+
+    enseignant = current_person(request, 'enseignant')
+    ue = get_object_or_404(UE.objects.select_related('filiere__departement__faculte'), code_ue=code_ue)
+    if not EnseignantUE.objects.filter(enseignant=enseignant, ue=ue).exists():
+        messages.error(request, "Vous n'êtes pas habilité à gérer cette UE.")
+        return redirect('dashboard_enseignant')
+
+    valid_types = {value for value, _ in TypeEvaluation.choices}
+    if evaluation_type not in valid_types:
+        return redirect('teacher_evaluations', code_ue=code_ue)
+
+    students = Etudiant.objects.filter(inscriptions__ue=ue).distinct().order_by('nom', 'prenom')
+    notes = {note.etudiant_id: note for note in Note.objects.filter(ue=ue, type_evaluation=evaluation_type)}
+    rows = [(student, notes.get(student.matricule)) for student in students]
+
+    return render(request, 'teacher/impress.html', {
+        'enseignant': enseignant,
+        'ue': ue,
+        'rows': rows,
+        'evaluation_type': evaluation_type,
+        'evaluation_label': dict(TypeEvaluation.choices).get(evaluation_type, evaluation_type),
+        'evaluation_choices': TypeEvaluation.choices,
     })
 
 
@@ -564,6 +646,8 @@ def admin_resource(request, resource, object_id=None):
             condition |= Q(**{f'{field}__icontains': query})
         items = items.filter(condition)
     template = 'admin_cellule/admin_resource_form.html' if instance or request.GET.get('new') == '1' else 'admin_cellule/admin_resource.html'
-    context = {'label': label, 'resource': resource, 'items': items, 'form': form, 'editing': bool(instance), 'query': query, 'pk_field': pk_field, 'admin_cellule': current_person(request, 'admin_cellule'), 'filters': filter_values}
+    context = {'label': label, 'resource': resource, 'items': items, 'form': form, 'editing': bool(instance), 'instance': instance, 'query': query, 'pk_field': pk_field, 'admin_cellule': current_person(request, 'admin_cellule'), 'filters': filter_values}
+    if resource == 'enseignants' and instance:
+        context['teacher_ues'] = EnseignantUE.objects.filter(enseignant=instance).select_related('ue', 'ue__filiere__departement__faculte').order_by('ue__filiere__code_filiere', 'ue__code_ue')
     context.update({'facultes': Faculte.objects.all(), 'departements': Departement.objects.all(), 'filieres': Filiere.objects.all(), 'niveaux': UE._meta.get_field('niveau').choices, 'fonctions': Enseignant.objects.values_list('fonction', flat=True).distinct().order_by('fonction')})
     return render(request, template, context)

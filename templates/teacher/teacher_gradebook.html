@@ -254,6 +254,9 @@
       <a class="gradebook-nav d-flex align-items-center gap-2 p-3" href="{% url 'dashboard_enseignant' %}">
         <i class="fa-solid fa-table-columns"></i> Tableau de bord
       </a>
+      <a class="gradebook-nav d-flex align-items-center gap-2 p-3" href="{% url 'teacher_requetes' %}">
+        <i class="fa-solid fa-inbox"></i> Boîte de réception
+      </a>
       <a class="gradebook-nav d-flex align-items-center gap-2 p-3" href="{% url 'teacher_evaluations' ue.code_ue %}">
         <i class="fa-solid fa-list-check"></i> Types d’évaluation
       </a>
@@ -289,9 +292,9 @@
         </p>
       </div>
       <div class="gradebook-actions d-flex gap-2">
-        <button type="button" class="print-button px-3 py-2" onclick="window.print()">
+        <a class="print-button px-3 py-2 text-decoration-none d-inline-flex align-items-center" href="{% url 'teacher_impress' ue.code_ue evaluation_type %}">
           <i class="fa-solid fa-print me-2"></i>Imprimer
-        </button>
+        </a>
         <button type="submit" form="grade-form" class="publish-button px-3 py-2">
           <i class="fa-solid fa-cloud-arrow-up me-2"></i>{% if evaluation_type == 'SN' %}Enregistrer les notes{% else %}Publier les notes{% endif %}
         </button>

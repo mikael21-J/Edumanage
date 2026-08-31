@@ -245,32 +245,62 @@
         </p>
       </header>
 
-      <section class="form-panel">
-        <a
-          class="form-subtitle d-inline-flex align-items-center mb-3"
-          href="{% url 'admin_resource' resource %}"
-        >
-          <i class="fa-solid fa-arrow-left me-2"></i>
-          Retour à la liste
-        </a>
+      <div class="d-flex gap-4 {% if resource == 'enseignants' and instance %}flex-wrap{% endif %}">
+        <section class="form-panel flex-grow-1" style="max-width: {% if resource == 'enseignants' and instance %}450px{% else %}360px{% endif %}">
+          <a
+            class="form-subtitle d-inline-flex align-items-center mb-3"
+            href="{% url 'admin_resource' resource %}"
+          >
+            <i class="fa-solid fa-arrow-left me-2"></i>
+            Retour à la liste
+          </a>
 
-        <form method="post">
-          {% csrf_token %} {{ form.as_p }}
+          <form method="post">
+            {% csrf_token %} {{ form.as_p }}
 
-          <div class="d-flex justify-content-end gap-2 mt-3">
-            <a
-              class="btn btn-sm btn-outline-secondary"
-              href="{% url 'admin_resource' resource %}"
-            >
-              Annuler
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <a
+                class="btn btn-sm btn-outline-secondary"
+                href="{% url 'admin_resource' resource %}"
+              >
+                Annuler
+              </a>
+              <button class="btn btn-sm btn-primary" type="submit">
+                <i class="fa-solid fa-check me-2"></i>
+                Enregistrer
+              </button>
+            </div>
+          </form>
+        </section>
+
+        {% if resource == 'enseignants' and instance %}
+        <section class="form-panel flex-grow-1" style="max-width: 450px">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="form-title h5 mb-0">UE dispensées</h2>
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'select_teacher_ues' %}?teacher_matricule={{ instance.matricule }}">
+              <i class="fa-solid fa-pen-to-square me-2"></i>Modifier
             </a>
-            <button class="btn btn-sm btn-primary" type="submit">
-              <i class="fa-solid fa-check me-2"></i>
-              Enregistrer
-            </button>
           </div>
-        </form>
-      </section>
+          <div class="list-group">
+            {% for habilitation in teacher_ues %}
+              <div class="list-group-item border rounded mb-2 p-3">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <div>
+                    <div class="fw-semibold small">{{ habilitation.ue.code_ue }}</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">{{ habilitation.ue.intitule }}</div>
+                  </div>
+                  <span class="badge bg-light text-dark border" style="font-size: 0.65rem; white-space: nowrap;">
+                    {{ habilitation.ue.filiere.nom_filiere }} · {{ habilitation.ue.niveau }}
+                  </span>
+                </div>
+              </div>
+            {% empty %}
+              <div class="alert alert-light border mb-0 p-2" style="font-size: 0.8rem;">Aucune UE affectée.</div>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+      </div>
     </main>
   </div>
 </div>

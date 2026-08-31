@@ -62,6 +62,28 @@ class EnseignantForm(forms.ModelForm):
         return instance
 
 
+class EnseignantProfileForm(forms.ModelForm):
+    mot_de_passe = forms.CharField(widget=forms.PasswordInput, required=False, label='Nouveau mot de passe')
+
+    class Meta:
+        model = Enseignant
+        fields = ('nom', 'prenom', 'mot_de_passe')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control form-control-sm'
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        password = self.cleaned_data.get('mot_de_passe')
+        if password:
+            instance.mot_de_passe = make_password(password)
+        if commit:
+            instance.save()
+        return instance
+
+
 class EtudiantForm(forms.ModelForm):
     class Meta:
         model = Etudiant

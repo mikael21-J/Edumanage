@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block title %}Mon profil enseignant{% endblock %}
+
+{% block content %}
+<style>
+  .teacher-profile-page {
+    --ink: #131b2e;
+    --muted: #5f6678;
+    --blue: #004ac6;
+    --line: #c3c6d7;
+    color: var(--ink);
+    margin: -1.5rem -0.75rem;
+    min-height: calc(100vh - 180px);
+    background: linear-gradient(135deg, #f2f3ff, #faf8ff 55%, #e2e7ff);
+  }
+  .teacher-profile-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    background: rgba(242, 243, 255, 0.94);
+    border-right: 1px solid var(--line);
+  }
+  .teacher-profile-brand {
+    color: var(--blue);
+    font: 700 1.5rem/2rem "Hanken Grotesk", sans-serif;
+  }
+  .teacher-profile-label,
+  .teacher-profile-meta {
+    color: var(--muted);
+    font: 600 0.7rem/1rem Inter, sans-serif;
+  }
+  .teacher-profile-label {
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .teacher-profile-nav {
+    color: var(--muted);
+    border-radius: 4px;
+    font: 600 0.85rem/1.2rem Inter, sans-serif;
+    text-decoration: none;
+  }
+  .teacher-profile-nav:hover,
+  .teacher-profile-nav.active {
+    color: var(--blue);
+    background: #d0e1fb;
+  }
+  .teacher-profile-topbar {
+    min-height: 64px;
+    background: rgba(250, 248, 255, 0.94);
+    border-bottom: 1px solid var(--line);
+  }
+  .teacher-profile-avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font: 700 0.8rem "Hanken Grotesk", sans-serif;
+  }
+  .teacher-profile-main {
+    max-width: 1200px;
+  }
+  .teacher-profile-title {
+    font: 700 clamp(1.7rem, 2.5vw, 2.2rem)/1.2 "Hanken Grotesk", sans-serif;
+  }
+  .teacher-profile-panel {
+    background: rgba(250, 248, 255, 0.94);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .teacher-profile-panel .form-label {
+    color: var(--muted);
+    font: 600 0.68rem/1rem Inter, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .teacher-profile-panel input,
+  .teacher-profile-panel select,
+  .teacher-profile-panel textarea {
+    width: 100%;
+    min-height: 42px;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: #fff;
+    font: 400 0.85rem/1.4rem Inter, sans-serif;
+  }
+  .teacher-profile-panel input:focus,
+  .teacher-profile-panel select:focus,
+  .teacher-profile-panel textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(0, 74, 198, 0.14);
+  }
+  .teacher-profile-ue {
+    display: block;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(250, 248, 255, 0.9);
+  }
+  .teacher-profile-ue strong {
+    color: var(--blue);
+    font: 700 0.82rem/1rem "JetBrains Mono", monospace;
+  }
+  .btn-primary-custom {
+    background: var(--blue);
+    border: 0;
+    color: #fff;
+    border-radius: 4px;
+    font: 600 0.76rem/1rem Inter, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .btn-primary-custom:hover {
+    background: #003ea8;
+    color: #fff;
+  }
+  .btn-outline-custom {
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    border-radius: 4px;
+    font: 600 0.76rem/1rem Inter, sans-serif;
+  }
+  @media (max-width: 767px) {
+    .teacher-profile-page { margin: -1.5rem -0.75rem; }
+    .teacher-profile-sidebar { display: none; }
+    .teacher-profile-main { padding: 1.25rem 1rem !important; }
+    .teacher-profile-topbar { padding: 0.75rem 1rem !important; }
+  }
+</style>
+
+<div class="teacher-profile-page d-flex">
+  <aside class="teacher-profile-sidebar d-none d-md-flex flex-column p-4">
+    <div class="d-flex align-items-center gap-2 mb-5">
+      <div class="teacher-profile-avatar">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <div class="teacher-profile-brand">EduManage</div>
+        <div class="teacher-profile-label">Academic Portal</div>
+      </div>
+    </div>
+
+    <nav class="d-grid gap-2">
+      <a class="teacher-profile-nav d-flex align-items-center gap-2 p-3" href="{% url 'dashboard_enseignant' %}">
+        <i class="fa-solid fa-table-columns"></i> Tableau de bord
+      </a>
+      <a class="teacher-profile-nav d-flex align-items-center gap-2 p-3" href="{% url 'teacher_requetes' %}">
+        <i class="fa-solid fa-inbox"></i> Boîte de réception
+      </a>
+    </nav>
+
+    <div class="mt-auto pt-4 border-top">
+      <a class="teacher-profile-nav d-flex align-items-center gap-2 p-3" href="{% url 'logout' %}">
+        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <div class="flex-grow-1 min-w-0">
+    <header class="teacher-profile-topbar d-flex justify-content-between align-items-center px-3 px-lg-5">
+      <div class="teacher-profile-label">Profil enseignant</div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="teacher-profile-meta d-none d-sm-inline">{{ enseignant.prenom }} {{ enseignant.nom }}</span>
+        <div class="teacher-profile-avatar">{{ enseignant.prenom|first }}{{ enseignant.nom|first }}</div>
+      </div>
+    </header>
+
+    <main class="teacher-profile-main w-100 px-3 px-lg-5 py-4 py-lg-5">
+      <header class="mb-4">
+        <div class="teacher-profile-label mb-2">Espace enseignant</div>
+        <h1 class="teacher-profile-title mb-2">Mon profil</h1>
+        <p class="teacher-profile-meta mb-0">Consultez et mettez à jour vos informations personnelles ainsi que vos UE dispensées.</p>
+      </header>
+
+      <div class="row g-4">
+        <div class="col-lg-5">
+          <section class="teacher-profile-panel p-4">
+            <h2 class="h5 mb-3">Informations personnelles</h2>
+            <form method="post">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <a class="btn btn-outline-custom px-3 py-2" href="{% url 'dashboard_enseignant' %}">Annuler</a>
+                <button type="submit" class="btn btn-primary-custom px-3 py-2">Enregistrer</button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <div class="col-lg-7">
+          <section class="teacher-profile-panel p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+              <h2 class="h5 mb-0">Liste des UE dispensées</h2>
+              <span class="badge bg-light text-dark border">Consultation uniquement</span>
+            </div>
+
+            <div class="d-grid gap-3">
+              {% for habilitation in habilitations %}
+                <div class="teacher-profile-ue">
+                  <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                    <div>
+                      <strong>{{ habilitation.ue.code_ue }}</strong>
+                      <div class="mt-1">{{ habilitation.ue.intitule }}</div>
+                    </div>
+                    <span class="badge bg-light text-dark border">
+                      {{ habilitation.ue.filiere.nom_filiere }} · {{ habilitation.ue.niveau }}
+                    </span>
+                  </div>
+                </div>
+              {% empty %}
+                <div class="alert alert-light border mb-0">Aucune UE n’est actuellement affectée à cet enseignant.</div>
+              {% endfor %}
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}
