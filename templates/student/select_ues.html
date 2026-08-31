@@ -35,6 +35,26 @@
       600 1.05rem/1.3 "Hanken Grotesk",
       sans-serif;
   }
+  .choice-sidebar .form-label {
+    color: var(--choice-muted);
+    font:
+      600 0.7rem/1rem Inter,
+      sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .choice-sidebar .form-select {
+    width: min(100%, 180px);
+    min-height: 36px;
+    border: 1px solid var(--choice-line);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 0.78rem;
+  }
+  .choice-sidebar .form-select:focus {
+    border-color: var(--choice-blue);
+    box-shadow: 0 0 0 2px rgba(0, 74, 198, 0.14);
+  }
   .choice-info,
   .choice-card {
     background: rgba(250, 248, 255, 0.9);
@@ -176,6 +196,50 @@
     <div class="choice-muted mb-4">
       Les UE déjà choisies sont verrouillées et ne peuvent plus être modifiées.
     </div>
+    <form id="choice-filter-form" class="d-flex flex-column gap-2 mb-4" onsubmit="return false;">
+      <div>
+        <label class="form-label" for="choice-filter-faculte">Faculté</label>
+        <select id="choice-filter-faculte" class="form-select">
+          <option value="">Toutes les facultés</option>
+          {% for faculte in faculte_choices %}
+          <option value="{{ faculte.filiere__departement__faculte_id }}">
+            {{ faculte.filiere__departement__faculte__nom_fac }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label" for="choice-filter-departement">Département</label>
+        <select id="choice-filter-departement" class="form-select">
+          <option value="">Tous les départements</option>
+          {% for departement in departement_choices %}
+          <option value="{{ departement.filiere__departement_id }}">
+            {{ departement.filiere__departement__nom_dept }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label" for="choice-filter-filiere">Filière</label>
+        <select id="choice-filter-filiere" class="form-select">
+          <option value="">Toutes les filières</option>
+          {% for filiere in filiere_choices %}
+          <option value="{{ filiere.filiere__code_filiere }}">
+            {{ filiere.filiere__nom_filiere }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label" for="choice-filter-niveau">Niveau</label>
+        <select id="choice-filter-niveau" class="form-select">
+          <option value="">Tous les niveaux</option>
+          {% for niveau in niveau_choices %}
+          <option value="{{ niveau }}">{{ niveau }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
     <div class="choice-actions mt-auto">
       <button
         type="submit"
@@ -201,9 +265,13 @@
     </header>
     <form id="student-ue-form" method="post">
       {% csrf_token %}
-      <div class="row g-3">
+      <div class="row g-3" id="ue-options">
         {% for ue in ues %}
-        <div class="col-12 col-md-6 col-xl-4">
+        <div class="col-12 col-md-4 col-xl-3 ue-option"
+          data-faculte="{{ ue.filiere.departement.faculte_id }}"
+          data-departement="{{ ue.filiere.departement_id }}"
+          data-filiere="{{ ue.filiere.code_filiere }}"
+          data-niveau="{{ ue.niveau }}">
           <label
             class="choice-card {% if ue.code_ue in selected_codes %}locked{% endif %}"
             ><div
@@ -236,15 +304,24 @@
         </div>
         {% endfor %}
       </div>
+      <p id="filter-empty" class="choice-muted d-none mt-4">
+        Aucune UE ne correspond aux filtres sélectionnés.
+      </p>
     </form>
   </main>
 </div>
 <script>
   const remainingCount = document.getElementById("remaining-count");
+  const filterEmpty = document.getElementById("filter-empty");
+  const faculteFilter = document.getElementById("choice-filter-faculte");
+  const departementFilter = document.getElementById("choice-filter-departement");
+  const filiereFilter = document.getElementById("choice-filter-filiere");
+  const niveauFilter = document.getElementById("choice-filter-niveau");
   const selectable = document.querySelectorAll(
     "#student-ue-form input:not(:disabled)",
   );
   const required = Number("{{ remaining_count }}");
+  
   function updateRemaining() {
     remainingCount.textContent = Math.max(
       required -
@@ -254,8 +331,32 @@
       0,
     );
   }
+  
+  function filterUes() {
+    const faculte = faculteFilter.value;
+    const departement = departementFilter.value;
+    const filiere = filiereFilter.value;
+    const niveau = niveauFilter.value;
+    let visible = 0;
+    document.querySelectorAll(".ue-option").forEach(function (option) {
+      const matches =
+        (!faculte || option.dataset.faculte === faculte) &&
+        (!departement || option.dataset.departement === departement) &&
+        (!filiere || option.dataset.filiere === filiere) &&
+        (!niveau || option.dataset.niveau === niveau);
+      option.classList.toggle("d-none", !matches);
+      if (matches) visible++;
+    });
+    filterEmpty.classList.toggle("d-none", visible !== 0);
+  }
+  
   selectable.forEach(function (input) {
     input.addEventListener("change", updateRemaining);
   });
+  
+  faculteFilter.addEventListener("change", filterUes);
+  departementFilter.addEventListener("change", filterUes);
+  filiereFilter.addEventListener("change", filterUes);
+  niveauFilter.addEventListener("change", filterUes);
 </script>
 {% endblock %}

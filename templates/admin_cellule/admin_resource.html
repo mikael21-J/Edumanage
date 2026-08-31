@@ -251,7 +251,23 @@
                 </select>
               </div>
               {% elif resource == 'etudiants' %}
-              <div class="col-6 col-md-4">
+              <div class="col-6 col-md-3">
+                <select name="faculte" class="form-select resource-filter" id="filter-faculte-etudiant">
+                  <option value="">Toutes les facultés</option>
+                  {% for item in facultes %}
+                  <option value="{{ item.id }}">{{ item.code_fac }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <select name="departement" class="form-select resource-filter" id="filter-departement-etudiant">
+                  <option value="">Tous les départements</option>
+                  {% for item in departements %}
+                  <option value="{{ item.id }}">{{ item.code_dept }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
                 <select name="filiere" class="form-select resource-filter">
                   <option value="">Toutes les filières</option>
                   {% for item in filieres %}
@@ -259,7 +275,7 @@
                   {% endfor %}
                 </select>
               </div>
-              <div class="col-6 col-md-4">
+              <div class="col-6 col-md-3">
                 <select name="niveau" class="form-select resource-filter">
                   <option value="">Tous les niveaux</option>
                   {% for value,text in niveaux %}
@@ -344,7 +360,13 @@
                 </td>
               </tr>
               {% elif resource == 'etudiants' %}
-              <tr>
+              <tr
+                class="etudiant-row"
+                data-faculte="{{ item.filiere.departement.faculte_id|default:'' }}"
+                data-departement="{{ item.filiere.departement_id|default:'' }}"
+                data-filiere="{{ item.filiere_id|default:'' }}"
+                data-niveau="{{ item.niveau }}"
+              >
                 <td><strong>{{ item.matricule }}</strong></td>
                 <td>{{ item.nom }}</td>
                 <td>{{ item.prenom }}</td>
@@ -379,4 +401,32 @@
     </main>
   </div>
 </div>
+<script>
+  // Filtrage dynamique du tableau pour les étudiants
+  const resourceType = '{{ resource }}';
+  if (resourceType === 'etudiants') {
+    const filters = document.querySelectorAll('.resource-filter');
+    const rows = document.querySelectorAll('.etudiant-row');
+    
+    function applyFilters() {
+      const faculte = document.querySelector('[name="faculte"]').value;
+      const departement = document.querySelector('[name="departement"]').value;
+      const filiere = document.querySelector('[name="filiere"]').value;
+      const niveau = document.querySelector('[name="niveau"]').value;
+      
+      rows.forEach(row => {
+        const matches =
+          (!faculte || row.dataset.faculte === faculte) &&
+          (!departement || row.dataset.departement === departement) &&
+          (!filiere || row.dataset.filiere === filiere) &&
+          (!niveau || row.dataset.niveau === niveau);
+        row.classList.toggle('d-none', !matches);
+      });
+    }
+    
+    filters.forEach(filter => {
+      filter.addEventListener('change', applyFilters);
+    });
+  }
+</script>
 {% endblock %}

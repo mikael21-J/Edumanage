@@ -167,6 +167,10 @@ def select_ues(request):
         'etudiant': etudiant,
         'selected_codes': selected_codes,
         'remaining_count': remaining_count,
+        'faculte_choices': ues_disponibles.values('filiere__departement__faculte_id', 'filiere__departement__faculte__nom_fac').distinct().order_by('filiere__departement__faculte__nom_fac'),
+        'departement_choices': ues_disponibles.values('filiere__departement_id', 'filiere__departement__nom_dept').distinct().order_by('filiere__departement__nom_dept'),
+        'filiere_choices': ues_disponibles.values('filiere__code_filiere', 'filiere__nom_filiere').distinct().order_by('filiere__code_filiere'),
+        'niveau_choices': ues_disponibles.values_list('niveau', flat=True).distinct().order_by('niveau'),
     })
 
 
@@ -193,7 +197,7 @@ def select_teacher_ues(request):
     if enseignant is None:
         return redirect('dashboard_enseignant')
 
-    ues = UE.objects.all().select_related('filiere').order_by('filiere__code_filiere', 'niveau', 'code_ue')
+    ues = UE.objects.all().select_related('filiere', 'filiere__departement', 'filiere__departement__faculte').order_by('filiere__code_filiere', 'niveau', 'code_ue')
     current_codes = set(EnseignantUE.objects.filter(enseignant=enseignant).values_list('ue_id', flat=True))
     is_admin_edit = bool(admin_session and teacher_matricule)
 
@@ -217,10 +221,12 @@ def select_teacher_ues(request):
                 request.session.pop('registration_matricule', None)
                 request.session.pop('user_role', None)
             if admin_session:
-                return redirect('admin_resource', resource='enseignants', object_id=enseignant.matricule)
+                return redirect('admin_resource_edit', resource='enseignants', object_id=enseignant.matricule)
             return redirect('dashboard_enseignant')
     return render(request, 'teacher/select_teacher_ues.html', {
         'ues': ues, 'enseignant': enseignant, 'current_codes': current_codes,
+        'faculte_choices': ues.values('filiere__departement__faculte_id', 'filiere__departement__faculte__nom_fac').distinct().order_by('filiere__departement__faculte__nom_fac'),
+        'departement_choices': ues.values('filiere__departement_id', 'filiere__departement__nom_dept').distinct().order_by('filiere__departement__nom_dept'),
         'filiere_choices': ues.values('filiere__code_filiere', 'filiere__nom_filiere').distinct().order_by('filiere__code_filiere'),
         'niveau_choices': ues.values_list('niveau', flat=True).distinct().order_by('niveau'),
         'is_admin_edit': is_admin_edit,
@@ -631,7 +637,11 @@ def admin_resource(request, resource, object_id=None):
         if filter_values['niveau']:
             items = items.filter(niveau=filter_values['niveau'])
     elif resource == 'etudiants':
-        items = items.select_related('filiere')
+        items = items.select_related('filiere__departement__faculte')
+        if filter_values['faculte']:
+            items = items.filter(filiere__departement__faculte_id=filter_values['faculte'])
+        if filter_values['departement']:
+            items = items.filter(filiere__departement_id=filter_values['departement'])
         if filter_values['filiere']:
             items = items.filter(filiere_id=filter_values['filiere'])
         if filter_values['niveau']:

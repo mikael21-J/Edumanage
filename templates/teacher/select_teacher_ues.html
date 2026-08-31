@@ -195,6 +195,28 @@
       onsubmit="return false;"
     >
       <div>
+        <label class="form-label" for="filter-faculte">Faculté</label
+        ><select id="filter-faculte" class="form-select">
+          <option value="">Toutes les facultés</option>
+          {% for faculte in faculte_choices %}
+          <option value="{{ faculte.filiere__departement__faculte_id }}">
+            {{ faculte.filiere__departement__faculte__nom_fac }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label" for="filter-departement">Département</label
+        ><select id="filter-departement" class="form-select">
+          <option value="">Tous les départements</option>
+          {% for departement in departement_choices %}
+          <option value="{{ departement.filiere__departement_id }}">
+            {{ departement.filiere__departement__nom_dept }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
         <label class="form-label" for="filter-filiere">Filière</label
         ><select id="filter-filiere" class="form-select">
           <option value="">Toutes les filières</option>
@@ -250,7 +272,9 @@
     <div class="row g-3" id="ue-options">
       {% for ue in ues %}
       <div
-        class="col-12 col-md-6 col-xl-4 ue-option"
+        class="col-12 col-md-4 col-xl-3 ue-option"
+        data-faculte="{{ ue.filiere.departement.faculte_id }}"
+        data-departement="{{ ue.filiere.departement_id }}"
         data-filiere="{{ ue.filiere.code_filiere }}"
         data-niveau="{{ ue.niveau }}"
       >
@@ -289,16 +313,22 @@
   </main>
 </div>
 <script>
+  const faculteFilter = document.getElementById("filter-faculte");
+  const departementFilter = document.getElementById("filter-departement");
   const filiereFilter = document.getElementById("filter-filiere");
   const niveauFilter = document.getElementById("filter-niveau");
   const visibleCount = document.getElementById("visible-count");
   const filterEmpty = document.getElementById("filter-empty");
   function filterUes() {
+    const faculte = faculteFilter.value;
+    const departement = departementFilter.value;
     const filiere = filiereFilter.value;
     const niveau = niveauFilter.value;
     let visible = 0;
     document.querySelectorAll(".ue-option").forEach(function (option) {
       const matches =
+        (!faculte || option.dataset.faculte === faculte) &&
+        (!departement || option.dataset.departement === departement) &&
         (!filiere || option.dataset.filiere === filiere) &&
         (!niveau || option.dataset.niveau === niveau);
       option.classList.toggle("d-none", !matches);
@@ -307,6 +337,8 @@
     visibleCount.textContent = visible;
     filterEmpty.classList.toggle("d-none", visible !== 0);
   }
+  faculteFilter.addEventListener("change", filterUes);
+  departementFilter.addEventListener("change", filterUes);
   filiereFilter.addEventListener("change", filterUes);
   niveauFilter.addEventListener("change", filterUes);
   document
